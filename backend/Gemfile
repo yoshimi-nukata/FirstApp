@@ -15,6 +15,25 @@ gem 'puma', '~> 4.1'
 # gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
+gem 'sidekiq', '4.1.4'
+gem 'seed-fu', '2.3.9'
+
+group :development do
+  gem 'brakeman'
+  gem 'rubocop'
+  gem 'rubocop-rspec'
+end
+
+## Tools
+group :development, :test do
+  gem 'bullet'
+  gem 'factory_bot_rails'
+  gem 'pry-byebug'
+  gem 'pry-coolline'
+  gem 'pry-doc'
+  gem 'pry-rails'
+  gem 'rspec-rails'
+end
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
