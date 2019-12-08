@@ -13,6 +13,10 @@ services:
       - ./backend/db:/var/lib/mysql
     container_name: firstqpp_db
     init: true
+  redis:
+    image: 'redis:5.0.5'
+    container_name: firstapp_redis
+    init: true
   backend:
     container_name: rails
     build: ./backend
