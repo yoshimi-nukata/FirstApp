@@ -24,21 +24,22 @@ services:
     container_name: firstapp_redis
     init: true
   backend:
-    container_name: rails
+    container_name: firstapp_rails
     build: ./backend
     volumes:
       - ./backend:/app
       - backend-bundle:/usr/local/bundle
       - web-cache:/app/tmp
-    command: "bundle exec rails s -p 3000 -b 0.0.0.0"
+    command: bash -c "rm -f /app/tmp/pids/server.pid & bundle exec rails db:migrate RAILS_ENV=development & bundle exec rails s -p 3000 -b 0.0.0.0"
     links:
       - db
+      - redis
     init: true
     stdin_open: true
     depends_on:
       - db
   frontend:
-    container_name: nuxt
+    container_name: firstapp_nuxt
     build: ./frontend
     ports:
       - "7080:8080"
@@ -47,6 +48,7 @@ services:
       - frontend-node-modules:/app/node_modules
 volumes:
   db-data:
+    driver: local
   web-cache:
   backend-bundle:
   frontend-node-modules:
