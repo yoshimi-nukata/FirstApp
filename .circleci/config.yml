@@ -17,8 +17,8 @@ jobs:
 
     steps:
       - run:
-        name: Install Bundler
-        command: gem install bundler -v 1.17.3
+          name: Install Bundler
+          command: gem install bundler -v 1.17.3
 
       - checkout
 
@@ -39,29 +39,29 @@ jobs:
 
       # Database setup
       - run:
-        name: Database Setup
-        command: |
-          bundle _1.17.3_ exec rake db:create db:migrate --trace
-          bundle _1.17.3_ exec rake db:seed --trace
+          name: Database Setup
+          command: |
+            bundle _1.17.3_ exec rake db:create db:migrate --trace
+            bundle _1.17.3_ exec rake db:seed --trace
 
       # rspec
       - run:
-        name: RSpec
-        command: bundle exec rake spec
+          name: RSpec
+          command: bundle exec rake spec
 
       # rubocop
       - run:
-        name: rubocop
-        command: |
-          bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html
-          bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple
+          name: rubocop
+          command: |
+            bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html
+            bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple
 
       # brakeman
       - run:
-        name: brakeman
-        command: bundle exec brakeman
+          name: brakeman
+          command: bundle exec brakeman
 
       # ESlint
       - run:
-        name: ESLint
-        command: npx eslint -o /tmp/artifacts/eslint.html -f node_modules/eslint-html-reporter/reporter.js --ign    ore-pattern vendor ./app/frontend/src/javascripts
+          name: ESLint
+          command: npx eslint -o /tmp/artifacts/eslint.html -f node_modules/eslint-html-reporter/reporter.js --ign    ore-pattern vendor ./app/frontend/src/javascripts
