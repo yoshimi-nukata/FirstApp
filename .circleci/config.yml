@@ -16,16 +16,17 @@ jobs:
       - image: circleci/redis:5.0.4
 
     steps:
+      - checkout
+
       - run:
           name: Install Bundler
           command: gem install bundler -v 1.17.3
 
-      - checkout
 
       - restore_cache:
           keys:
-            - rails-backend-{{ checksum "Gemfile.lock" }}
-            - rails-frontend-{{ checksum "package.json" }}
+            - rails-firstapp-{{ checksum "Gemfile.lock" }}
+            - rails-firstapp-
 
       - run:
           name: install dependencies
@@ -33,12 +34,16 @@ jobs:
             bundle install --jobs=4 --retry=3 --path vendor/bundle
 
       - save_cache:
-          key: rails-backend-{{ checksum "Gemfile.lock" }}
+          key: rails-firstapp-{{ checksum "Gemfile.lock" }}
           paths:
-            - backend/bundle
+            - vender/bundle
+
+      - restore_cache:
+          keys:
+            - rails-firstapp-{{ checksum "package.json" }}
 
       - save_cache:
-          key: rails-frontend-{{ checksum "package.json" }}
+          key: rails-firstapp-{{ checksum "package.json" }}
           paths:
             - frontend/node_modules
 
