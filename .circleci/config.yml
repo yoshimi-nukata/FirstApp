@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/FirstApp
     docker:
       - image: circleci/ruby:2.4.1-node-browsers
         environment:
@@ -11,10 +12,8 @@ jobs:
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
         command:
-          mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --init-connect='SET NAMES ut    f8mb4' --sql-mode=''
+          mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --init-connect='SET NAMES utf8mb4' --sql-mode=''
       - image: circleci/redis:5.0.4
-
-    working_directory: ~/FirstApp
 
     steps:
       - run:
