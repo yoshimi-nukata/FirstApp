@@ -31,7 +31,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
+            bundle _1.17.3_ install --path=vendor/bundle --jobs 4 --retry 3
 
       - save_cache:
           key: v1-rails-firstapp-{{ checksum "backend/Gemfile.lock" }}
@@ -40,10 +40,10 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-rails-firstapp-{{ checksum "package.json" }}
+            - v1-rails-firstapp-{{ checksum "frontend/package.json" }}
 
       - save_cache:
-          key: v1-rails-firstapp-{{ checksum "package.json" }}
+          key: v1-rails-firstapp-{{ checksum "frontend/package.json" }}
           paths:
             - frontend/node_modules
 
