@@ -50,25 +50,26 @@ jobs:
       - run:
           name: Database Setup
           command: |
-            bundle _1.17.3_ exec rake db:create db:migrate --trace --gemfile=backend/Gemfile
-            bundle _1.17.3_ exec rake db:seed --trace --gemfile=backend/Gemfile
+            cd backend
+            bundle _1.17.3_ exec rake db:create db:migrate --trace
+            bundle _1.17.3_ exec rake db:seed --trace
 
       # rspec
       - run:
           name: RSpec
-          command: bundle exec rake spec --gemfile=backend/Gemfile
+          command: bundle exec rake spec
 
       # rubocop
       - run:
           name: rubocop
           command: |
-            bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html --gemfile=backend/Gemfile
-            bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple --gemfile=backend/Gemfile
+            bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html
+            bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple
 
       # brakeman
       - run:
           name: brakeman
-          command: bundle exec brakeman --gemfile=backend/Gemfile
+          command: bundle exec brakeman
 
       # ESlint
       - run:
