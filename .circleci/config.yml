@@ -51,8 +51,7 @@ jobs:
           name: Database Setup
           command: |
             cd backend
-            bundle _1.17.3_ exec rake db:create db:migrate --trace
-            bundle _1.17.3_ exec rake db:seed --trace
+            bundle _1.17.3_ exec rake db:create
 
       # rspec
       - run:
