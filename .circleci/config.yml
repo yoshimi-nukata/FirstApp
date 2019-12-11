@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/FirstApp
     docker:
-      - image: circleci/ruby:2.4.1-node-browsers
+      - image: circleci/ruby:2.6.3-node-browsers
         environment:
           RAILS_ENV: test
           DABASE_HOST: 127.0.0.1
