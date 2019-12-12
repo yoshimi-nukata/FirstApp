@@ -18,11 +18,10 @@ gem 'puma', '~> 4.1'
 gem 'sidekiq', '~> 5.2.7'
 gem 'seed-fu', '2.3.9'
 gem 'dotenv-rails'
-gem 'parser', '~> 2.6.5.0'
 
 group :development do
   gem 'brakeman'
-  gem 'rubocop'
+  gem 'rubocop', '0.68.1'
   gem 'rubocop-rspec'
 end
 

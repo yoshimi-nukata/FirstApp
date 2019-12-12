@@ -181,13 +181,13 @@ GEM
       rspec-mocks (~> 3.9.0)
       rspec-support (~> 3.9.0)
     rspec-support (3.9.0)
-    rubocop (0.77.0)
+    rubocop (0.68.1)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
-      parser (>= 2.6.5.0)
+      parser (>= 2.5, != 2.5.1.1)
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 1.7)
+      unicode-display_width (>= 1.4.0, < 1.6)
     rubocop-rspec (1.37.0)
       rubocop (>= 0.68.1)
     ruby-progressbar (1.10.1)
@@ -215,7 +215,7 @@ GEM
     thread_safe (0.3.6)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    unicode-display_width (1.6.0)
+    unicode-display_width (1.5.0)
     unicode_utils (1.4.0)
     uniform_notifier (1.13.0)
     websocket-driver (0.7.1)
@@ -236,7 +236,6 @@ DEPENDENCIES
   factory_bot_rails
   listen (>= 3.0.5, < 3.2)
   mysql2 (>= 0.4.4)
-  parser (~> 2.6.5.0)
   pry-byebug
   pry-coolline
   pry-doc
@@ -244,7 +243,7 @@ DEPENDENCIES
   puma (~> 4.1)
   rails (~> 6.0.1)
   rspec-rails
-  rubocop
+  rubocop (= 0.68.1)
   rubocop-rspec
   seed-fu (= 2.3.9)
   sidekiq (~> 5.2.7)
