@@ -82,3 +82,6 @@ jobs:
       - run:
           name: ESLint
           command: npx eslint -o /tmp/artifacts/eslint.html -f node_modules/eslint-html-reporter/reporter.js --ign    ore-pattern vendor ./app/frontend/src/javascripts
+
+      - store_artifacts:
+          path: /tmp/artifacts
