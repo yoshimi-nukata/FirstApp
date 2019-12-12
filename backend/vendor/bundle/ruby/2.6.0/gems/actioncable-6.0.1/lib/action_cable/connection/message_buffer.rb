@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Connection
+
     # Allows us to buffer messages received from the WebSocket before the Connection has been fully initialized, and is ready to receive them.
     class MessageBuffer # :nodoc:
+
       def initialize(connection)
         @connection = connection
         @buffered_messages = []
@@ -31,6 +34,7 @@ module ActionCable
       end
 
       private
+
         attr_reader :connection
         attr_reader :buffered_messages
 
@@ -49,6 +53,9 @@ module ActionCable
         def receive_buffered_messages
           receive buffered_messages.shift until buffered_messages.empty?
         end
+
     end
+
   end
+
 end

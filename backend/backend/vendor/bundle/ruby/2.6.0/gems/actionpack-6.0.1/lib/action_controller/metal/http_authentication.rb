@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require "base64"
-require "active_support/security_utils"
+require 'base64'
+require 'active_support/security_utils'
 
 module ActionController
+
   # Makes it dead easy to do HTTP Basic, Digest and Token authentication.
   module HttpAuthentication
+
     # Makes it dead easy to do HTTP \Basic authentication.
     #
     # === Simple \Basic example
@@ -63,15 +65,19 @@ module ActionController
     #     assert_equal 200, status
     #   end
     module Basic
-      extend self
+
+      module_function
 
       module ControllerMethods
+
         extend ActiveSupport::Concern
 
         module ClassMethods
+
           def http_basic_authenticate_with(name:, password:, realm: nil, **options)
             before_action(options) { http_basic_authenticate_or_request_with name: name, password: password, realm: realm }
           end
+
         end
 
         def http_basic_authenticate_or_request_with(name:, password:, realm: nil, message: nil)
@@ -82,16 +88,17 @@ module ActionController
         end
 
         def authenticate_or_request_with_http_basic(realm = nil, message = nil, &login_procedure)
-          authenticate_with_http_basic(&login_procedure) || request_http_basic_authentication(realm || "Application", message)
+          authenticate_with_http_basic(&login_procedure) || request_http_basic_authentication(realm || 'Application', message)
         end
 
         def authenticate_with_http_basic(&login_procedure)
           HttpAuthentication::Basic.authenticate(request, &login_procedure)
         end
 
-        def request_http_basic_authentication(realm = "Application", message = nil)
+        def request_http_basic_authentication(realm = 'Application', message = nil)
           HttpAuthentication::Basic.authentication_request(self, realm, message)
         end
+
       end
 
       def authenticate(request, &login_procedure)
@@ -101,23 +108,23 @@ module ActionController
       end
 
       def has_basic_credentials?(request)
-        request.authorization.present? && (auth_scheme(request).downcase == "basic")
+        request.authorization.present? && (auth_scheme(request).downcase == 'basic')
       end
 
       def user_name_and_password(request)
-        decode_credentials(request).split(":", 2)
+        decode_credentials(request).split(':', 2)
       end
 
       def decode_credentials(request)
-        ::Base64.decode64(auth_param(request) || "")
+        ::Base64.decode64(auth_param(request) || '')
       end
 
       def auth_scheme(request)
-        request.authorization.to_s.split(" ", 2).first
+        request.authorization.to_s.split(' ', 2).first
       end
 
       def auth_param(request)
-        request.authorization.to_s.split(" ", 2).second
+        request.authorization.to_s.split(' ', 2).second
       end
 
       def encode_credentials(user_name, password)
@@ -126,10 +133,11 @@ module ActionController
 
       def authentication_request(controller, realm, message)
         message ||= "HTTP Basic: Access denied.\n"
-        controller.headers["WWW-Authenticate"] = %(Basic realm="#{realm.tr('"', "")}")
+        controller.headers['WWW-Authenticate'] = %(Basic realm="#{realm.tr('"', '')}")
         controller.status = 401
         controller.response_body = message
       end
+
     end
 
     # Makes it dead easy to do HTTP \Digest authentication.
@@ -175,22 +183,25 @@ module ActionController
     # they reach your application. You can debug this situation by logging all environment
     # variables, and check for HTTP_AUTHORIZATION, amongst others.
     module Digest
-      extend self
+
+      module_function
 
       module ControllerMethods
-        def authenticate_or_request_with_http_digest(realm = "Application", message = nil, &password_procedure)
+
+        def authenticate_or_request_with_http_digest(realm = 'Application', message = nil, &password_procedure)
           authenticate_with_http_digest(realm, &password_procedure) || request_http_digest_authentication(realm, message)
         end
 
         # Authenticate with HTTP Digest, returns true or false
-        def authenticate_with_http_digest(realm = "Application", &password_procedure)
+        def authenticate_with_http_digest(realm = 'Application', &password_procedure)
           HttpAuthentication::Digest.authenticate(request, realm, &password_procedure)
         end
 
         # Render output including the HTTP Digest authentication header
-        def request_http_digest_authentication(realm = "Application", message = nil)
+        def request_http_digest_authentication(realm = 'Application', message = nil)
           HttpAuthentication::Digest.authentication_request(self, realm, message)
         end
+
       end
 
       # Returns false on a valid response, true otherwise
@@ -210,12 +221,12 @@ module ActionController
           password = password_procedure.call(credentials[:username])
           return false unless password
 
-          method = request.get_header("rack.methodoverride.original_method") || request.get_header("REQUEST_METHOD")
+          method = request.get_header('rack.methodoverride.original_method') || request.get_header('REQUEST_METHOD')
           uri    = credentials[:uri]
 
           [true, false].any? do |trailing_question_mark|
             [true, false].any? do |password_is_ha1|
-              _uri = trailing_question_mark ? uri + "?" : uri
+              _uri = trailing_question_mark ? uri + '?' : uri
               expected = expected_response(method, _uri, credentials, password, password_is_ha1)
               expected == credentials[:response]
             end
@@ -228,17 +239,17 @@ module ActionController
       # of a plain-text password.
       def expected_response(http_method, uri, credentials, password, password_is_ha1 = true)
         ha1 = password_is_ha1 ? password : ha1(credentials, password)
-        ha2 = ::Digest::MD5.hexdigest([http_method.to_s.upcase, uri].join(":"))
-        ::Digest::MD5.hexdigest([ha1, credentials[:nonce], credentials[:nc], credentials[:cnonce], credentials[:qop], ha2].join(":"))
+        ha2 = ::Digest::MD5.hexdigest([http_method.to_s.upcase, uri].join(':'))
+        ::Digest::MD5.hexdigest([ha1, credentials[:nonce], credentials[:nc], credentials[:cnonce], credentials[:qop], ha2].join(':'))
       end
 
       def ha1(credentials, password)
-        ::Digest::MD5.hexdigest([credentials[:username], credentials[:realm], password].join(":"))
+        ::Digest::MD5.hexdigest([credentials[:username], credentials[:realm], password].join(':'))
       end
 
       def encode_credentials(http_method, credentials, password, password_is_ha1)
         credentials[:response] = expected_response(http_method, credentials[:uri], credentials, password, password_is_ha1)
-        "Digest " + credentials.sort_by { |x| x[0].to_s }.map { |v| "#{v[0]}='#{v[1]}'" }.join(", ")
+        'Digest ' + credentials.sort_by { |x| x[0].to_s }.map { |v| "#{v[0]}='#{v[1]}'" }.join(', ')
       end
 
       def decode_credentials_header(request)
@@ -246,9 +257,9 @@ module ActionController
       end
 
       def decode_credentials(header)
-        ActiveSupport::HashWithIndifferentAccess[header.to_s.gsub(/^Digest\s+/, "").split(",").map do |pair|
-          key, value = pair.split("=", 2)
-          [key.strip, value.to_s.gsub(/^"|"$/, "").delete("'")]
+        ActiveSupport::HashWithIndifferentAccess[header.to_s.gsub(/^Digest\s+/, '').split(',').map do |pair|
+          key, value = pair.split('=', 2)
+          [key.strip, value.to_s.gsub(/^"|"$/, '').delete("'")]
         end]
       end
 
@@ -256,7 +267,7 @@ module ActionController
         secret_key = secret_token(controller.request)
         nonce = self.nonce(secret_key)
         opaque = opaque(secret_key)
-        controller.headers["WWW-Authenticate"] = %(Digest realm="#{realm}", qop="auth", algorithm=MD5, nonce="#{nonce}", opaque="#{opaque}")
+        controller.headers['WWW-Authenticate'] = %(Digest realm="#{realm}", qop="auth", algorithm=MD5, nonce="#{nonce}", opaque="#{opaque}")
       end
 
       def authentication_request(controller, realm, message = nil)
@@ -307,7 +318,7 @@ module ActionController
       def nonce(secret_key, time = Time.now)
         t = time.to_i
         hashed = [t, secret_key]
-        digest = ::Digest::MD5.hexdigest(hashed.join(":"))
+        digest = ::Digest::MD5.hexdigest(hashed.join(':'))
         ::Base64.strict_encode64("#{t}:#{digest}")
       end
 
@@ -316,9 +327,10 @@ module ActionController
       # Can be much shorter if the Stale directive is implemented. This would
       # allow a user to use new nonce without prompting the user again for their
       # username and password.
-      def validate_nonce(secret_key, request, value, seconds_to_timeout = 5 * 60)
+      def validate_nonce(secret_key, _request, value, seconds_to_timeout = 5 * 60)
         return false if value.nil?
-        t = ::Base64.decode64(value).split(":").first.to_i
+
+        t = ::Base64.decode64(value).split(':').first.to_i
         nonce(secret_key, t) == value && (t - Time.now.to_i).abs <= seconds_to_timeout
       end
 
@@ -326,6 +338,7 @@ module ActionController
       def opaque(secret_key)
         ::Digest::MD5.hexdigest(secret_key)
       end
+
     end
 
     # Makes it dead easy to do HTTP Token authentication.
@@ -403,13 +416,16 @@ module ActionController
     #
     #   RewriteRule ^(.*)$ dispatch.fcgi [E=X-HTTP_AUTHORIZATION:%{HTTP:Authorization},QSA,L]
     module Token
-      TOKEN_KEY = "token="
-      TOKEN_REGEX = /^(Token|Bearer)\s+/
-      AUTHN_PAIR_DELIMITERS = /(?:,|;|\t+)/
-      extend self
+
+      TOKEN_KEY = 'token='
+      TOKEN_REGEX = /^(Token|Bearer)\s+/.freeze
+      AUTHN_PAIR_DELIMITERS = /(?:,|;|\t+)/.freeze
+
+      module_function
 
       module ControllerMethods
-        def authenticate_or_request_with_http_token(realm = "Application", message = nil, &login_procedure)
+
+        def authenticate_or_request_with_http_token(realm = 'Application', message = nil, &login_procedure)
           authenticate_with_http_token(&login_procedure) || request_http_token_authentication(realm, message)
         end
 
@@ -417,9 +433,10 @@ module ActionController
           Token.authenticate(self, &login_procedure)
         end
 
-        def request_http_token_authentication(realm = "Application", message = nil)
+        def request_http_token_authentication(realm = 'Application', message = nil)
           Token.authentication_request(self, realm, message)
         end
+
       end
 
       # If token Authorization header is present, call the login
@@ -438,9 +455,7 @@ module ActionController
 
       def authenticate(controller, &login_procedure)
         token, options = token_and_options(controller.request)
-        unless token.blank?
-          login_procedure.call(token, options)
-        end
+        login_procedure.call(token, options) unless token.blank?
       end
 
       # Parses the token and options out of the token Authorization header.
@@ -468,21 +483,21 @@ module ActionController
 
       # Takes raw_params and turns it into an array of parameters
       def params_array_from(raw_params)
-        raw_params.map { |param| param.split %r/=(.+)?/ }
+        raw_params.map { |param| param.split /=(.+)?/ }
       end
 
       # This removes the <tt>"</tt> characters wrapping the value.
       def rewrite_param_values(array_params)
-        array_params.each { |param| (param[1] || +"").gsub! %r/^"|"$/, "" }
+        array_params.each { |param| (param[1] || +'').gsub! /^"|"$/, '' }
       end
 
       # This method takes an authorization body and splits up the key-value
       # pairs by the standardized <tt>:</tt>, <tt>;</tt>, or <tt>\t</tt>
       # delimiters defined in +AUTHN_PAIR_DELIMITERS+.
       def raw_params(auth)
-        _raw_params = auth.sub(TOKEN_REGEX, "").split(/\s*#{AUTHN_PAIR_DELIMITERS}\s*/)
+        _raw_params = auth.sub(TOKEN_REGEX, '').split(/\s*#{AUTHN_PAIR_DELIMITERS}\s*/)
 
-        if !(_raw_params.first =~ %r{\A#{TOKEN_KEY}})
+        if _raw_params.first !~ /\A#{TOKEN_KEY}/
           _raw_params[0] = "#{TOKEN_KEY}#{_raw_params.first}"
         end
 
@@ -499,7 +514,7 @@ module ActionController
         values = ["#{TOKEN_KEY}#{token.to_s.inspect}"] + options.map do |key, value|
           "#{key}=#{value.to_s.inspect}"
         end
-        "Token #{values * ", "}"
+        "Token #{values * ', '}"
       end
 
       # Sets a WWW-Authenticate header to let the client know a token is desired.
@@ -510,9 +525,12 @@ module ActionController
       # Returns nothing.
       def authentication_request(controller, realm, message = nil)
         message ||= "HTTP Token: Access denied.\n"
-        controller.headers["WWW-Authenticate"] = %(Token realm="#{realm.tr('"', "")}")
+        controller.headers['WWW-Authenticate'] = %(Token realm="#{realm.tr('"', '')}")
         controller.__send__ :render, plain: message, status: :unauthorized
       end
+
     end
+
   end
+
 end

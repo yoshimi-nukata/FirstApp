@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require "abstract_controller/error"
-require "active_support/configurable"
-require "active_support/descendants_tracker"
-require "active_support/core_ext/module/anonymous"
-require "active_support/core_ext/module/attr_internal"
+require 'abstract_controller/error'
+require 'active_support/configurable'
+require 'active_support/descendants_tracker'
+require 'active_support/core_ext/module/anonymous'
+require 'active_support/core_ext/module/attr_internal'
 
 module AbstractController
+
   # Raised when a non-existing controller action is triggered.
   class ActionNotFound < StandardError
   end
@@ -16,6 +17,7 @@ module AbstractController
   # expected to provide their own +render+ method, since rendering means
   # different things depending on the context.
   class Base
+
     ##
     # Returns the body of the HTTP response sent by the controller.
     attr_internal :response_body
@@ -32,8 +34,9 @@ module AbstractController
     extend ActiveSupport::DescendantsTracker
 
     class << self
+
       attr_reader :abstract
-      alias_method :abstract?, :abstract
+      alias abstract? abstract
 
       # Define a controller as abstract. See internal_methods for more
       # details.
@@ -44,9 +47,7 @@ module AbstractController
       def inherited(klass) # :nodoc:
         # Define the abstract ivar on subclasses so that we don't get
         # uninitialized ivar warnings
-        unless klass.instance_variable_defined?(:@abstract)
-          klass.instance_variable_set(:@abstract, false)
-        end
+        klass.instance_variable_set(:@abstract, false) unless klass.instance_variable_defined?(:@abstract)
         super
       end
 
@@ -104,7 +105,7 @@ module AbstractController
       # ==== Returns
       # * <tt>String</tt>
       def controller_path
-        @controller_path ||= name.sub(/Controller$/, "").underscore unless anonymous?
+        @controller_path ||= name.sub(/Controller$/, '').underscore unless anonymous?
       end
 
       # Refresh the cached action_methods when a new action_method is added.
@@ -112,6 +113,7 @@ module AbstractController
         super
         clear_action_methods!
       end
+
     end
 
     abstract!
@@ -255,7 +257,7 @@ module AbstractController
         if action_method?(action_name)
           action_name
         elsif respond_to?(:action_missing, true)
-          "_handle_action_missing"
+          '_handle_action_missing'
         end
       end
 
@@ -263,5 +265,7 @@ module AbstractController
       def _valid_action_name?(action_name)
         !action_name.to_s.include? File::SEPARATOR
       end
+
   end
+
 end

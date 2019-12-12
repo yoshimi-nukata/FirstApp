@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionController
+
   # When our views change, they should bubble up into HTTP cache freshness
   # and bust browser caches. So the template digest for the current action
   # is automatically included in the ETag.
@@ -19,6 +20,7 @@ module ActionController
   #   fresh_when @post, template: false
   #
   module EtagWithTemplateDigest
+
     extend ActiveSupport::Concern
 
     include ActionController::ConditionalGet
@@ -34,6 +36,7 @@ module ActionController
     end
 
     private
+
       def determine_template_etag(options)
         if template = pick_template_for_etag(options)
           lookup_and_digest_template(template)
@@ -45,13 +48,13 @@ module ActionController
       # the default controller/action template. If +:template+ is false, omit the
       # template digest from the ETag.
       def pick_template_for_etag(options)
-        unless options[:template] == false
-          options[:template] || "#{controller_path}/#{action_name}"
-        end
+        options[:template] || "#{controller_path}/#{action_name}" unless options[:template] == false
       end
 
       def lookup_and_digest_template(template)
         ActionView::Digestor.digest name: template, format: nil, finder: lookup_context
       end
+
   end
+
 end

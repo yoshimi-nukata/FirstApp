@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "async"
+require_relative 'async'
 
 module ActionCable
+
   module SubscriptionAdapter
+
     # == Test adapter for Action Cable
     #
     # The test adapter should be used only in testing. Along with
@@ -14,6 +16,7 @@ module ActionCable
     # NOTE: Test adapter extends the <tt>ActionCable::SubscriptionsAdapter::Async</tt> adapter,
     # so it could be used in system tests too.
     class Test < Async
+
       def broadcast(channel, payload)
         broadcasts(channel) << payload
         super
@@ -32,9 +35,13 @@ module ActionCable
       end
 
       private
+
         def channels_data
           @channels_data ||= {}
         end
+
     end
+
   end
+
 end

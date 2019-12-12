@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Connection
+
     extend ActiveSupport::Autoload
 
     eager_autoload do
@@ -18,5 +20,7 @@ module ActionCable
       autoload :TestCase
       autoload :WebSocket
     end
+
   end
+
 end

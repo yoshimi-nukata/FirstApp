@@ -8,7 +8,7 @@
 
 require 'rubygems'
 
-version = ">= 0.a"
+version = '>= 0.a'
 
 str = ARGV.first
 if str
@@ -20,8 +20,8 @@ if str
 end
 
 if Gem.respond_to?(:activate_bin_path)
-load Gem.activate_bin_path('rake', 'rake', version)
+  load Gem.activate_bin_path('rake', 'rake', version)
 else
-gem "rake", version
-load Gem.bin_path("rake", "rake", version)
+  gem 'rake', version
+  load Gem.bin_path('rake', 'rake', version)
 end

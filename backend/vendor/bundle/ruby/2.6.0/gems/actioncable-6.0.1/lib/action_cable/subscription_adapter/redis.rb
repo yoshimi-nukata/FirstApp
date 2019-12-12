@@ -1,21 +1,22 @@
 # frozen_string_literal: true
 
-require "thread"
+gem 'redis', '>= 3', '< 5'
+require 'redis'
 
-gem "redis", ">= 3", "< 5"
-require "redis"
-
-require "active_support/core_ext/hash/except"
+require 'active_support/core_ext/hash/except'
 
 module ActionCable
+
   module SubscriptionAdapter
+
     class Redis < Base # :nodoc:
+
       prepend ChannelPrefix
 
       # Overwrite this factory method for Redis connections if you want to use a different Redis library than the redis gem.
       # This is needed, for example, when using Makara proxies for distributed Redis.
       cattr_accessor :redis_connector, default: ->(config) do
-        config[:id] ||= "ActionCable-PID-#{$$}"
+        config[:id] ||= "ActionCable-PID-#{$PROCESS_ID}"
         ::Redis.new(config.except(:adapter, :channel_prefix))
       end
 
@@ -38,7 +39,7 @@ module ActionCable
       end
 
       def shutdown
-        @listener.shutdown if @listener
+        @listener&.shutdown
       end
 
       def redis_connection_for_subscriptions
@@ -46,6 +47,7 @@ module ActionCable
       end
 
       private
+
         def listener
           @listener || @server.mutex.synchronize { @listener ||= Listener.new(self, @server.event_loop) }
         end
@@ -61,6 +63,7 @@ module ActionCable
         end
 
         class Listener < SubscriberMap
+
           def initialize(adapter, event_loop)
             super()
 
@@ -81,15 +84,13 @@ module ActionCable
             conn.without_reconnect do
               original_client = conn.respond_to?(:_client) ? conn._client : conn.client
 
-              conn.subscribe("_action_cable_internal") do |on|
+              conn.subscribe('_action_cable_internal') do |on|
                 on.subscribe do |chan, count|
                   @subscription_lock.synchronize do
                     if count == 1
                       @raw_client = original_client
 
-                      until @when_connected.empty?
-                        @when_connected.shift.call
-                      end
+                      @when_connected.shift.call until @when_connected.empty?
                     end
 
                     if callbacks = @subscribe_callbacks[chan]
@@ -104,7 +105,7 @@ module ActionCable
                   broadcast(chan, message)
                 end
 
-                on.unsubscribe do |chan, count|
+                on.unsubscribe do |_chan, count|
                   if count == 0
                     @subscription_lock.synchronize do
                       @raw_client = nil
@@ -120,7 +121,7 @@ module ActionCable
               return if @thread.nil?
 
               when_connected do
-                send_command("unsubscribe")
+                send_command('unsubscribe')
                 @raw_client = nil
               end
             end
@@ -132,13 +133,13 @@ module ActionCable
             @subscription_lock.synchronize do
               ensure_listener_running
               @subscribe_callbacks[channel] << on_success
-              when_connected { send_command("subscribe", channel) }
+              when_connected { send_command('subscribe', channel) }
             end
           end
 
           def remove_channel(channel)
             @subscription_lock.synchronize do
-              when_connected { send_command("unsubscribe", channel) }
+              when_connected { send_command('unsubscribe', channel) }
             end
           end
 
@@ -147,6 +148,7 @@ module ActionCable
           end
 
           private
+
             def ensure_listener_running
               @thread ||= Thread.new do
                 Thread.current.abort_on_exception = true
@@ -171,11 +173,13 @@ module ActionCable
                 @raw_client.connection.instance_variable_defined?(:@connection) &&
                 @raw_client.connection.instance_variable_get(:@connection)
 
-              if very_raw_connection && very_raw_connection.respond_to?(:flush)
-                very_raw_connection.flush
-              end
+              very_raw_connection.flush if very_raw_connection&.respond_to?(:flush)
             end
+
         end
+
     end
+
   end
+
 end

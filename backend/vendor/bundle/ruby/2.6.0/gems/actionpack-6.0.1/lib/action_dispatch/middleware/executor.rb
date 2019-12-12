@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require "rack/body_proxy"
+require 'rack/body_proxy'
 
 module ActionDispatch
+
   class Executor
+
     def initialize(app, executor)
-      @app, @executor = app, executor
+      @app = app
+      @executor = executor
     end
 
     def call(env)
@@ -17,5 +20,7 @@ module ActionDispatch
         state.complete! unless returned
       end
     end
+
   end
+
 end

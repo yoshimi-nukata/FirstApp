@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionDispatch
+
   module Http
+
     # Models uploaded files.
     #
     # The actual file is accessible via the +tempfile+ accessor, though some
@@ -11,6 +13,7 @@ module ActionDispatch
     # the object is finalized Ruby unlinks the file, so there is no need to
     # clean them with a separate maintenance task.
     class UploadedFile
+
       # The basename of the file in the client.
       attr_accessor :original_filename
 
@@ -26,7 +29,7 @@ module ActionDispatch
 
       def initialize(hash) # :nodoc:
         @tempfile = hash[:tempfile]
-        raise(ArgumentError, ":tempfile is required") unless @tempfile
+        raise(ArgumentError, ':tempfile is required') unless @tempfile
 
         if hash[:filename]
           @original_filename = hash[:filename].dup
@@ -87,6 +90,9 @@ module ActionDispatch
       def to_io
         @tempfile.to_io
       end
+
     end
+
   end
+
 end

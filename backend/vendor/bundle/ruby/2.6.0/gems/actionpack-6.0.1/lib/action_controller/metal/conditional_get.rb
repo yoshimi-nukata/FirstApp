@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController
+
   module ConditionalGet
+
     extend ActiveSupport::Concern
 
     include Head
@@ -11,6 +13,7 @@ module ActionController
     end
 
     module ClassMethods
+
       # Allows you to consider additional controller-wide information when generating an ETag.
       # For example, if you serve pages tailored depending on who's logged in at the moment, you
       # may want to add the current user id to be part of the ETag to prevent unauthorized displaying
@@ -28,6 +31,7 @@ module ActionController
       def etag(&etagger)
         self.etaggers += [etagger]
       end
+
     end
 
     # Sets the +etag+, +last_modified+, or both on the response and renders a
@@ -106,10 +110,10 @@ module ActionController
 
       if strong_etag
         response.strong_etag = combine_etags strong_etag,
-          last_modified: last_modified, public: public, template: template
+                                             last_modified: last_modified, public: public, template: template
       elsif weak_etag || template
         response.weak_etag = combine_etags weak_etag,
-          last_modified: last_modified, public: public, template: template
+                                           last_modified: last_modified, public: public, template: template
       end
 
       response.last_modified = last_modified if last_modified
@@ -241,7 +245,7 @@ module ActionController
         public: options.delete(:public),
         must_revalidate: options.delete(:must_revalidate),
         stale_while_revalidate: options.delete(:stale_while_revalidate),
-        stale_if_error: options.delete(:stale_if_error),
+        stale_if_error: options.delete(:stale_if_error)
       )
       options.delete(:private)
 
@@ -273,8 +277,11 @@ module ActionController
     end
 
     private
+
       def combine_etags(validator, options)
         [validator, *etaggers.map { |etagger| instance_exec(options, &etagger) }].compact
       end
+
   end
+
 end

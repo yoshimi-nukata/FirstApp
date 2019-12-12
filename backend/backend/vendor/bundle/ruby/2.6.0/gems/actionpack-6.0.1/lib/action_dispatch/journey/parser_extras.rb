@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
-require "action_dispatch/journey/scanner"
-require "action_dispatch/journey/nodes/node"
+require 'action_dispatch/journey/scanner'
+require 'action_dispatch/journey/nodes/node'
 
 module ActionDispatch
+
   # :stopdoc:
   module Journey
+
     class Parser < Racc::Parser
+
       include Journey::Nodes
 
       def self.parse(string)
@@ -25,7 +28,10 @@ module ActionDispatch
       def next_token
         @scanner.next_token
       end
+
     end
+
   end
   # :startdoc:
+
 end

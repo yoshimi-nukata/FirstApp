@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/hash/indifferent_access"
+require 'active_support/core_ext/hash/indifferent_access'
 
 module ActionDispatch
+
   class Request
+
     class Utils # :nodoc:
+
       mattr_accessor :perform_deep_munge, default: true
 
       def self.each_param_value(params, &block)
@@ -42,6 +45,7 @@ module ActionDispatch
       end
 
       class ParamEncoder # :nodoc:
+
         # Convert nested Hash to HashWithIndifferentAccess.
         def self.normalize_encode_params(params)
           case params
@@ -63,16 +67,22 @@ module ActionDispatch
         def self.handle_array(params)
           params.map! { |el| normalize_encode_params(el) }
         end
+
       end
 
       # Remove nils from the params hash.
       class NoNilParamEncoder < ParamEncoder # :nodoc:
+
         def self.handle_array(params)
           list = super
           list.compact!
           list
         end
+
       end
+
     end
+
   end
+
 end

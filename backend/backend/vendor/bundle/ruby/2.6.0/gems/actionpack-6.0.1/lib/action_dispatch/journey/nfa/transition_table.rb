@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
-require "action_dispatch/journey/nfa/dot"
+require 'action_dispatch/journey/nfa/dot'
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     module NFA # :nodoc:
+
       class TransitionTable # :nodoc:
+
         include Journey::NFA::Dot
 
         attr_accessor :accepting
@@ -56,11 +60,11 @@ module ActionDispatch
         # Returns set of NFA states to which there is a transition on ast symbol
         # +a+ from some state +s+ in +t+.
         def move(t, a)
-          Array(t).map { |s|
-            inverted[s].keys.compact.find_all { |sym|
+          Array(t).map do |s|
+            inverted[s].keys.compact.find_all do |sym|
               sym === a
-            }.map { |sym| inverted[s][sym] }
-          }.flatten.uniq
+            end.map { |sym| inverted[s][sym] }
+          end.flatten.uniq
         end
 
         def alphabet
@@ -88,9 +92,9 @@ module ActionDispatch
         end
 
         def transitions
-          @table.flat_map { |to, hash|
+          @table.flat_map do |to, hash|
             hash.map { |from, sym| [from, sym, to] }
-          }
+          end
         end
 
         private
@@ -98,23 +102,27 @@ module ActionDispatch
           def inverted
             return @inverted if @inverted
 
-            @inverted = Hash.new { |h, from|
+            @inverted = Hash.new do |h, from|
               h[from] = Hash.new { |j, s| j[s] = [] }
-            }
+            end
 
-            @table.each { |to, hash|
-              hash.each { |from, sym|
+            @table.each do |to, hash|
+              hash.each do |from, sym|
                 if sym
                   sym = Nodes::Symbol === sym ? sym.regexp : sym.left
                 end
 
                 @inverted[from][sym] << to
-              }
-            }
+              end
+            end
 
             @inverted
           end
+
       end
+
     end
+
   end
+
 end

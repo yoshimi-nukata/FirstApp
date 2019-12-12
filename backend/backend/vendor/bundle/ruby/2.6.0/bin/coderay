@@ -8,7 +8,7 @@
 
 require 'rubygems'
 
-version = ">= 0.a"
+version = '>= 0.a'
 
 str = ARGV.first
 if str
@@ -20,8 +20,8 @@ if str
 end
 
 if Gem.respond_to?(:activate_bin_path)
-load Gem.activate_bin_path('coderay', 'coderay', version)
+  load Gem.activate_bin_path('coderay', 'coderay', version)
 else
-gem "coderay", version
-load Gem.bin_path("coderay", "coderay", version)
+  gem 'coderay', version
+  load Gem.bin_path('coderay', 'coderay', version)
 end

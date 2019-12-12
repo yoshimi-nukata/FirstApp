@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require "action_dispatch"
+require 'action_dispatch'
 
 module ActionCable
+
   module Connection
+
     # For every WebSocket connection the Action Cable server accepts, a Connection object will be instantiated. This instance becomes the parent
     # of all of the channel subscriptions that are created from there on. Incoming messages are then routed to these channel subscriptions
     # based on an identifier sent by the Action Cable consumer. The Connection itself does not deal with any specific application logic beyond
@@ -43,6 +45,7 @@ module ActionCable
     #
     # Pretty simple, eh?
     class Base
+
       include Identification
       include InternalChannel
       include Authorization
@@ -51,7 +54,9 @@ module ActionCable
       delegate :event_loop, :pubsub, to: :server
 
       def initialize(server, env, coder: ActiveSupport::JSON)
-        @server, @env, @coder = server, env, coder
+        @server = server
+        @env = env
+        @coder = coder
 
         @worker_pool = server.worker_pool
         @logger = new_tagged_logger
@@ -116,7 +121,7 @@ module ActionCable
           identifier: connection_identifier,
           started_at: @started_at,
           subscriptions: subscriptions.identifiers,
-          request_id: @env["action_dispatch.request_id"]
+          request_id: @env['action_dispatch.request_id']
         }
       end
 
@@ -137,11 +142,12 @@ module ActionCable
         logger.error "WebSocket error occurred: #{message}"
       end
 
-      def on_close(reason, code) # :nodoc:
+      def on_close(_reason, _code) # :nodoc:
         send_async :handle_close
       end
 
       private
+
         attr_reader :websocket
         attr_reader :message_buffer
 
@@ -199,10 +205,10 @@ module ActionCable
         def allow_request_origin?
           return true if server.config.disable_request_forgery_protection
 
-          proto = Rack::Request.new(env).ssl? ? "https" : "http"
-          if server.config.allow_same_origin_as_host && env["HTTP_ORIGIN"] == "#{proto}://#{env['HTTP_HOST']}"
+          proto = Rack::Request.new(env).ssl? ? 'https' : 'http'
+          if server.config.allow_same_origin_as_host && env['HTTP_ORIGIN'] == "#{proto}://#{env['HTTP_HOST']}"
             true
-          elsif Array(server.config.allowed_request_origins).any? { |allowed_origin|  allowed_origin === env["HTTP_ORIGIN"] }
+          elsif Array(server.config.allowed_request_origins).any? { |allowed_origin| allowed_origin === env['HTTP_ORIGIN'] }
             true
           else
             logger.error("Request origin not allowed: #{env['HTTP_ORIGIN']}")
@@ -220,45 +226,35 @@ module ActionCable
 
           logger.error invalid_request_message
           logger.info finished_request_message
-          [ 404, { "Content-Type" => "text/plain" }, [ "Page not found" ] ]
+          [404, { 'Content-Type' => 'text/plain' }, ['Page not found']]
         end
 
         # Tags are declared in the server but computed in the connection. This allows us per-connection tailored tags.
         def new_tagged_logger
           TaggedLoggerProxy.new server.logger,
-            tags: server.config.log_tags.map { |tag| tag.respond_to?(:call) ? tag.call(request) : tag.to_s.camelize }
+                                tags: server.config.log_tags.map { |tag| tag.respond_to?(:call) ? tag.call(request) : tag.to_s.camelize }
         end
 
         def started_request_message
-          'Started %s "%s"%s for %s at %s' % [
-            request.request_method,
-            request.filtered_path,
-            websocket.possible? ? " [WebSocket]" : "[non-WebSocket]",
-            request.ip,
-            Time.now.to_s ]
+          format('Started %s "%s"%s for %s at %s', request.request_method, request.filtered_path, websocket.possible? ? ' [WebSocket]' : '[non-WebSocket]', request.ip, Time.now.to_s)
         end
 
         def finished_request_message
-          'Finished "%s"%s for %s at %s' % [
-            request.filtered_path,
-            websocket.possible? ? " [WebSocket]" : "[non-WebSocket]",
-            request.ip,
-            Time.now.to_s ]
+          format('Finished "%s"%s for %s at %s', request.filtered_path, websocket.possible? ? ' [WebSocket]' : '[non-WebSocket]', request.ip, Time.now.to_s)
         end
 
         def invalid_request_message
-          "Failed to upgrade to WebSocket (REQUEST_METHOD: %s, HTTP_CONNECTION: %s, HTTP_UPGRADE: %s)" % [
-            env["REQUEST_METHOD"], env["HTTP_CONNECTION"], env["HTTP_UPGRADE"]
-          ]
+          format('Failed to upgrade to WebSocket (REQUEST_METHOD: %s, HTTP_CONNECTION: %s, HTTP_UPGRADE: %s)', env['REQUEST_METHOD'], env['HTTP_CONNECTION'], env['HTTP_UPGRADE'])
         end
 
         def successful_request_message
-          "Successfully upgraded to WebSocket (REQUEST_METHOD: %s, HTTP_CONNECTION: %s, HTTP_UPGRADE: %s)" % [
-            env["REQUEST_METHOD"], env["HTTP_CONNECTION"], env["HTTP_UPGRADE"]
-          ]
+          format('Successfully upgraded to WebSocket (REQUEST_METHOD: %s, HTTP_CONNECTION: %s, HTTP_UPGRADE: %s)', env['REQUEST_METHOD'], env['HTTP_CONNECTION'], env['HTTP_UPGRADE'])
         end
+
     end
+
   end
+
 end
 
 ActiveSupport.run_load_hooks(:action_cable_connection, ActionCable::Connection::Base)

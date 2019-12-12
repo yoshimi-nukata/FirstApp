@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require "mail"
+require 'mail'
 
 module ActionMailbox
+
   module TestHelper
+
     # Create an +InboundEmail+ record using an eml fixture in the format of message/rfc822
     # referenced with +fixture_name+ located in +test/fixtures/files/fixture_name+.
     def create_inbound_email_from_fixture(fixture_name, status: :processing)
@@ -26,7 +28,6 @@ module ActionMailbox
       ActionMailbox::InboundEmail.create_and_extract_message_id! source, status: status
     end
 
-
     # Create an +InboundEmail+ from fixture using the same arguments as +create_inbound_email_from_fixture+
     # and immediately route it to processing.
     def receive_inbound_email_from_fixture(*args)
@@ -44,5 +45,7 @@ module ActionMailbox
     def receive_inbound_email_from_source(*args)
       create_inbound_email_from_source(*args).tap(&:route)
     end
+
   end
+
 end

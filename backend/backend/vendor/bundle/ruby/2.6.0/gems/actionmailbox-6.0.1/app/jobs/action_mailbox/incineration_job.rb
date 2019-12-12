@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # You can configure when this +IncinerationJob+ will be run as a time-after-processing using the
   # +config.action_mailbox.incinerate_after+ or +ActionMailbox.incinerate_after+ setting.
   #
@@ -10,6 +11,7 @@ module ActionMailbox
   # You can disable incinerating processed emails by setting +config.action_mailbox.incinerate+ or
   # +ActionMailbox.incinerate+ to +false+.
   class IncinerationJob < ActiveJob::Base
+
     queue_as { ActionMailbox.queues[:incineration] }
 
     discard_on ActiveRecord::RecordNotFound
@@ -21,5 +23,7 @@ module ActionMailbox
     def perform(inbound_email)
       inbound_email.incinerate
     end
+
   end
+
 end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # Ingests inbound emails from SendGrid. Requires an +email+ parameter containing a full RFC 822 message.
   #
   # Authenticates requests using HTTP basic access authentication. The username is always +actionmailbox+, and the
@@ -45,10 +46,13 @@ module ActionMailbox
   #    *NOTE:* When configuring your SendGrid Inbound Parse webhook, be sure to check the box labeled *"Post the raw,
   #    full MIME message."* Action Mailbox needs the raw MIME message to work.
   class Ingresses::Sendgrid::InboundEmailsController < ActionMailbox::BaseController
+
     before_action :authenticate_by_password
 
     def create
       ActionMailbox::InboundEmail.create_and_extract_message_id! params.require(:email)
     end
+
   end
+
 end

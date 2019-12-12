@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # Ingests inbound emails from Mandrill.
   #
   # Requires a +mandrill_events+ parameter containing a JSON array of Mandrill inbound email event objects.
@@ -15,25 +16,26 @@ module ActionMailbox
   # - <tt>500 Server Error</tt> if the Mandrill API key is missing, or one of the Active Record database,
   #   the Active Storage service, or the Active Job backend is misconfigured or unavailable
   class Ingresses::Mandrill::InboundEmailsController < ActionMailbox::BaseController
+
     before_action :authenticate
 
     def create
       raw_emails.each { |raw_email| ActionMailbox::InboundEmail.create_and_extract_message_id! raw_email }
       head :ok
-    rescue JSON::ParserError => error
-      logger.error error.message
+    rescue JSON::ParserError => e
+      logger.error e.message
       head :unprocessable_entity
     end
 
     private
+
       def raw_emails
-        events.select { |event| event["event"] == "inbound" }.collect { |event| event.dig("msg", "raw_msg") }
+        events.select { |event| event['event'] == 'inbound' }.collect { |event| event.dig('msg', 'raw_msg') }
       end
 
       def events
         JSON.parse params.require(:mandrill_events)
       end
-
 
       def authenticate
         head :unauthorized unless authenticated?
@@ -51,14 +53,16 @@ module ActionMailbox
       end
 
       def key
-        Rails.application.credentials.dig(:action_mailbox, :mandrill_api_key) || ENV["MANDRILL_INGRESS_API_KEY"]
+        Rails.application.credentials.dig(:action_mailbox, :mandrill_api_key) || ENV['MANDRILL_INGRESS_API_KEY']
       end
 
       class Authenticator
+
         attr_reader :request, :key
 
         def initialize(request, key)
-          @request, @key = request, key
+          @request = request
+          @key = key
         end
 
         def authenticated?
@@ -66,8 +70,9 @@ module ActionMailbox
         end
 
         private
+
           def given_signature
-            request.headers["X-Mandrill-Signature"]
+            request.headers['X-Mandrill-Signature']
           end
 
           def expected_signature
@@ -77,6 +82,9 @@ module ActionMailbox
           def message
             request.url + request.POST.sort.flatten.join
           end
+
       end
+
   end
+
 end

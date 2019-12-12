@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require "erb"
-require "action_dispatch/http/request"
-require "active_support/actionable_error"
+require 'erb'
+require 'action_dispatch/http/request'
+require 'active_support/actionable_error'
 
 module ActionDispatch
+
   class ActionableExceptions # :nodoc:
-    cattr_accessor :endpoint, default: "/rails/actions"
+
+    cattr_accessor :endpoint, default: '/rails/actions'
 
     def initialize(app)
       @app = app
@@ -22,6 +24,7 @@ module ActionDispatch
     end
 
     private
+
       def actionable_request?(request)
         request.show_exceptions? && request.post? && request.path == endpoint
       end
@@ -30,10 +33,12 @@ module ActionDispatch
         body = "<html><body>You are being <a href=\"#{ERB::Util.unwrapped_html_escape(location)}\">redirected</a>.</body></html>"
 
         [302, {
-          "Content-Type" => "text/html; charset=#{Response.default_charset}",
-          "Content-Length" => body.bytesize.to_s,
-          "Location" => location,
+          'Content-Type' => "text/html; charset=#{Response.default_charset}",
+          'Content-Length' => body.bytesize.to_s,
+          'Location' => location
         }, [body]]
       end
+
   end
+
 end

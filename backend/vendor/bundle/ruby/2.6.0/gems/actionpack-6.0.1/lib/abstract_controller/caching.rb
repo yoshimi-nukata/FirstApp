@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module AbstractController
+
   module Caching
+
     extend ActiveSupport::Concern
     extend ActiveSupport::Autoload
 
@@ -10,6 +12,7 @@ module AbstractController
     end
 
     module ConfigMethods
+
       def cache_store
         config.cache_store
       end
@@ -19,9 +22,11 @@ module AbstractController
       end
 
       private
+
         def cache_configured?
           perform_caching && cache_store
         end
+
     end
 
     include ConfigMethods
@@ -31,7 +36,7 @@ module AbstractController
       extend ConfigMethods
 
       config_accessor :default_static_extension
-      self.default_static_extension ||= ".html"
+      self.default_static_extension ||= '.html'
 
       config_accessor :perform_caching
       self.perform_caching = true if perform_caching.nil?
@@ -44,9 +49,11 @@ module AbstractController
     end
 
     module ClassMethods
+
       def view_cache_dependency(&dependency)
         self._view_cache_dependencies += [dependency]
       end
+
     end
 
     def view_cache_dependencies
@@ -54,6 +61,7 @@ module AbstractController
     end
 
     private
+
       # Convenience accessor.
       def cache(key, options = {}, &block) # :doc:
         if cache_configured?
@@ -62,5 +70,7 @@ module AbstractController
           yield
         end
       end
+
   end
+
 end

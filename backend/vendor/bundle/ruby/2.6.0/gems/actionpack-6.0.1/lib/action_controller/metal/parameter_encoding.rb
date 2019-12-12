@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 module ActionController
+
   # Specify binary encoding for parameters for a given action.
   module ParameterEncoding
+
     extend ActiveSupport::Concern
 
     module ClassMethods
+
       def inherited(klass) # :nodoc:
         super
         klass.setup_param_encode
@@ -46,6 +49,9 @@ module ActionController
       def skip_parameter_encoding(action)
         @_parameter_encodings[action.to_s] = true
       end
+
     end
+
   end
+
 end

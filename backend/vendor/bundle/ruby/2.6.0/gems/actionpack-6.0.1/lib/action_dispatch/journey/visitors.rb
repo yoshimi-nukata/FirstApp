@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
 module ActionDispatch
+
   # :stopdoc:
   module Journey
+
     class Format
+
       ESCAPE_PATH    = ->(value) { Router::Utils.escape_path(value) }
       ESCAPE_SEGMENT = ->(value) { Router::Utils.escape_segment(value) }
 
       Parameter = Struct.new(:name, :escaper) do
-        def escape(value); escaper.call value; end
+        def escape(value)
+          escaper.call value
+        end
       end
 
       def self.required_path(symbol)
@@ -40,7 +45,8 @@ module ActionDispatch
         @parameters.each do |index|
           param = parts[index]
           value = hash[param.name]
-          return "" unless value
+          return '' unless value
+
           parts[index] = param.escape value
         end
 
@@ -48,11 +54,14 @@ module ActionDispatch
 
         parts.join
       end
+
     end
 
     module Visitors # :nodoc:
+
       class Visitor # :nodoc:
-        DISPATCH_CACHE = {}
+
+        DISPATCH_CACHE = {}.freeze
 
         def accept(node)
           visit(node)
@@ -68,33 +77,61 @@ module ActionDispatch
             visit(node.left)
             visit(node.right)
           end
-          def visit_CAT(n); binary(n); end
+
+          def visit_CAT(n)
+            binary(n)
+          end
 
           def nary(node)
             node.children.each { |c| visit(c) }
           end
-          def visit_OR(n); nary(n); end
+
+          def visit_OR(n)
+            nary(n)
+          end
 
           def unary(node)
             visit(node.left)
           end
-          def visit_GROUP(n); unary(n); end
-          def visit_STAR(n); unary(n); end
 
-          def terminal(node); end
-          def visit_LITERAL(n); terminal(n); end
-          def visit_SYMBOL(n);  terminal(n); end
-          def visit_SLASH(n);   terminal(n); end
-          def visit_DOT(n);     terminal(n); end
+          def visit_GROUP(n)
+            unary(n)
+          end
+
+          def visit_STAR(n)
+            unary(n)
+          end
+
+          def terminal(node)
+          end
+
+          def visit_LITERAL(n)
+            terminal(n)
+          end
+
+          def visit_SYMBOL(n)
+            terminal(n)
+          end
+
+          def visit_SLASH(n)
+            terminal(n)
+          end
+
+          def visit_DOT(n)
+            terminal(n)
+          end
 
           private_instance_methods(false).each do |pim|
             next unless pim =~ /^visit_(.*)$/
-            DISPATCH_CACHE[$1.to_sym] = pim
+
+            DISPATCH_CACHE[Regexp.last_match(1).to_sym] = pim
           end
+
       end
 
       class FunctionalVisitor # :nodoc:
-        DISPATCH_CACHE = {}
+
+        DISPATCH_CACHE = {}.freeze
 
         def accept(node, seed)
           visit(node, seed)
@@ -107,40 +144,76 @@ module ActionDispatch
         def binary(node, seed)
           visit(node.right, visit(node.left, seed))
         end
-        def visit_CAT(n, seed); binary(n, seed); end
+
+        def visit_CAT(n, seed)
+          binary(n, seed)
+        end
 
         def nary(node, seed)
           node.children.inject(seed) { |s, c| visit(c, s) }
         end
-        def visit_OR(n, seed); nary(n, seed); end
+
+        def visit_OR(n, seed)
+          nary(n, seed)
+        end
 
         def unary(node, seed)
           visit(node.left, seed)
         end
-        def visit_GROUP(n, seed); unary(n, seed); end
-        def visit_STAR(n, seed); unary(n, seed); end
 
-        def terminal(node, seed);   seed; end
-        def visit_LITERAL(n, seed); terminal(n, seed); end
-        def visit_SYMBOL(n, seed);  terminal(n, seed); end
-        def visit_SLASH(n, seed);   terminal(n, seed); end
-        def visit_DOT(n, seed);     terminal(n, seed); end
+        def visit_GROUP(n, seed)
+          unary(n, seed)
+        end
+
+        def visit_STAR(n, seed)
+          unary(n, seed)
+        end
+
+        def terminal(_node, seed)
+          seed
+        end
+
+        def visit_LITERAL(n, seed)
+          terminal(n, seed)
+        end
+
+        def visit_SYMBOL(n, seed)
+          terminal(n, seed)
+        end
+
+        def visit_SLASH(n, seed)
+          terminal(n, seed)
+        end
+
+        def visit_DOT(n, seed)
+          terminal(n, seed)
+        end
 
         instance_methods(false).each do |pim|
           next unless pim =~ /^visit_(.*)$/
-          DISPATCH_CACHE[$1.to_sym] = pim
+
+          DISPATCH_CACHE[Regexp.last_match(1).to_sym] = pim
         end
+
       end
 
       class FormatBuilder < Visitor # :nodoc:
-        def accept(node); Journey::Format.new(super); end
-        def terminal(node); [node.left]; end
+
+        def accept(node)
+          Journey::Format.new(super)
+        end
+
+        def terminal(node)
+          [node.left]
+        end
 
         def binary(node)
           visit(node.left) + visit(node.right)
         end
 
-        def visit_GROUP(n); [Journey::Format.new(unary(n))]; end
+        def visit_GROUP(n)
+          [Journey::Format.new(unary(n))]
+        end
 
         def visit_STAR(n)
           [Journey::Format.required_path(n.left.to_sym)]
@@ -154,19 +227,23 @@ module ActionDispatch
             [Journey::Format.required_segment(symbol)]
           end
         end
+
       end
 
       # Loop through the requirements AST.
       class Each < FunctionalVisitor # :nodoc:
+
         def visit(node, block)
           block.call(node)
           super
         end
 
         INSTANCE = new
+
       end
 
       class String < FunctionalVisitor # :nodoc:
+
         private
 
           def binary(node, seed)
@@ -175,11 +252,11 @@ module ActionDispatch
 
           def nary(node, seed)
             last_child = node.children.last
-            node.children.inject(seed) { |s, c|
+            node.children.inject(seed) do |s, c|
               string = visit(c, s)
-              string << "|" unless last_child == c
+              string << '|' unless last_child == c
               string
-            }
+            end
           end
 
           def terminal(node, seed)
@@ -187,13 +264,15 @@ module ActionDispatch
           end
 
           def visit_GROUP(node, seed)
-            visit(node.left, seed.dup << "(") << ")"
+            visit(node.left, seed.dup << '(') << ')'
           end
 
           INSTANCE = new
+
       end
 
       class Dot < FunctionalVisitor # :nodoc:
+
         def initialize
           @nodes = []
           @edges = []
@@ -261,8 +340,12 @@ module ActionDispatch
             seed
           end
           INSTANCE = new
+
       end
+
     end
+
   end
   # :startdoc:
+
 end

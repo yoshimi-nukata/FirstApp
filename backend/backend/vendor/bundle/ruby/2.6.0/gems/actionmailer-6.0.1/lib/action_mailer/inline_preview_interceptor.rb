@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require "base64"
+require 'base64'
 
 module ActionMailer
+
   # Implements a mailer preview interceptor that converts image tag src attributes
   # that use inline cid: style URLs to data: style URLs so that they are visible
   # when previewing an HTML email in a web browser.
@@ -13,7 +14,8 @@ module ActionMailer
   #   ActionMailer::Base.preview_interceptors.delete(ActionMailer::InlinePreviewInterceptor)
   #
   class InlinePreviewInterceptor
-    PATTERN = /src=(?:"cid:[^"]+"|'cid:[^']+')/i
+
+    PATTERN = /src=(?:"cid:[^"]+"|'cid:[^']+')/i.freeze
 
     include Base64
 
@@ -30,7 +32,7 @@ module ActionMailer
 
       html_part.body = html_part.decoded.gsub(PATTERN) do |match|
         if part = find_part(match[9..-2])
-          %[src="#{data_url(part)}"]
+          %(src="#{data_url(part)}")
         else
           match
         end
@@ -40,6 +42,7 @@ module ActionMailer
     end
 
     private
+
       attr_reader :message
 
       def html_part
@@ -53,5 +56,7 @@ module ActionMailer
       def find_part(cid)
         message.all_parts.find { |p| p.attachment? && p.cid == cid }
       end
+
   end
+
 end

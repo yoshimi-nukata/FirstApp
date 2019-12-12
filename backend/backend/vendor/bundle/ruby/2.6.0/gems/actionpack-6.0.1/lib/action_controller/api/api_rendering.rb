@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController
+
   module ApiRendering
+
     extend ActiveSupport::Concern
 
     included do
@@ -12,5 +14,7 @@ module ActionController
       _process_options(options)
       super
     end
+
   end
+
 end

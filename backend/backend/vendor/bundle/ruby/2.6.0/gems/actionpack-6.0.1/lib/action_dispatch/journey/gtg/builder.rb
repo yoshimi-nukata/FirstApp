@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
-require "action_dispatch/journey/gtg/transition_table"
+require 'action_dispatch/journey/gtg/transition_table'
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     module GTG # :nodoc:
+
       class Builder # :nodoc:
+
         DUMMY = Nodes::Dummy.new
 
         attr_reader :root, :ast, :endpoints
@@ -26,6 +30,7 @@ module ActionDispatch
           until dstates.empty?
             s = dstates.shift
             next if marked[s]
+
             marked[s] = true # mark s
 
             s.group_by { |state| symbol(state) }.each do |sym, ps|
@@ -47,9 +52,9 @@ module ActionDispatch
 
                   accepting = ps.find_all { |l| followpos(l).include?(DUMMY) }
 
-                  accepting.each { |accepting_state|
+                  accepting.each do |accepting_state|
                     dtrans.add_memo(to, accepting_state.memo)
-                  }
+                  end
 
                   dtrans.add_accepting(state_id[u])
                 end
@@ -77,7 +82,7 @@ module ActionDispatch
           when Nodes::Unary
             nullable?(node.left)
           else
-            raise ArgumentError, "unknown nullable: %s" % node.class.name
+            raise ArgumentError, 'unknown nullable: %s' % node.class.name
           end
         end
 
@@ -98,7 +103,7 @@ module ActionDispatch
           when Nodes::Terminal
             nullable?(node) ? [] : [node]
           else
-            raise ArgumentError, "unknown firstpos: %s" % node.class.name
+            raise ArgumentError, 'unknown firstpos: %s' % node.class.name
           end
         end
 
@@ -119,7 +124,7 @@ module ActionDispatch
           when Nodes::Unary
             lastpos(node.left)
           else
-            raise ArgumentError, "unknown lastpos: %s" % node.class.name
+            raise ArgumentError, 'unknown lastpos: %s' % node.class.name
           end
         end
 
@@ -158,7 +163,11 @@ module ActionDispatch
               edge.left
             end
           end
+
       end
+
     end
+
   end
+
 end

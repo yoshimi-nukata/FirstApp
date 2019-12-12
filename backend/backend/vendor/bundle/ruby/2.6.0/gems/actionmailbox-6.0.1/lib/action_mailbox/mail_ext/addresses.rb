@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module Mail
+
   class Message
+
     def from_address
       header[:from]&.address_list&.addresses&.first
     end
@@ -25,5 +27,7 @@ module Mail
     def x_original_to_addresses
       Array(header[:x_original_to]).collect { |header| Mail::Address.new header.to_s }
     end
+
   end
+
 end

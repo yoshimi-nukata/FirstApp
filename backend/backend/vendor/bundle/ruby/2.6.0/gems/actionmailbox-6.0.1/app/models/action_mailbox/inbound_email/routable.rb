@@ -6,6 +6,7 @@
 # By default, all newly created +InboundEmail+ records that have the status of +pending+, which is the default,
 # will be scheduled for automatic, deferred routing.
 module ActionMailbox::InboundEmail::Routable
+
   extend ActiveSupport::Concern
 
   included do
@@ -21,4 +22,5 @@ module ActionMailbox::InboundEmail::Routable
   def route
     ApplicationMailbox.route self
   end
+
 end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionController
+
   # The \Rails framework provides a large number of helpers for working with assets, dates, forms,
   # numbers and model objects, to name a few. These helpers are available to all templates
   # by default.
@@ -49,6 +50,7 @@ module ActionController
   #   N/A | Carolina Railhawks Training Workshop
   #
   module Helpers
+
     extend ActiveSupport::Concern
 
     class << self; attr_accessor :helpers_path; end
@@ -60,6 +62,7 @@ module ActionController
     end
 
     module ClassMethods
+
       # Declares helper accessors for controller attributes. For example, the
       # following adds new +name+ and <tt>name=</tt> instance methods to a
       # controller and makes them available to the view:
@@ -100,7 +103,7 @@ module ActionController
       #   # => ["application", "chart", "rubygems"]
       def all_helpers_from_path(path)
         helpers = Array(path).flat_map do |_path|
-          names = Dir["#{_path}/**/*_helper.rb"].map { |file| file[_path.to_s.size + 1..-"_helper.rb".size - 1] }
+          names = Dir["#{_path}/**/*_helper.rb"].map { |file| file[_path.to_s.size + 1..-'_helper.rb'.size - 1] }
           names.sort!
         end
         helpers.uniq!
@@ -108,15 +111,19 @@ module ActionController
       end
 
       private
+
         # Extract helper names from files in <tt>app/helpers/**/*_helper.rb</tt>
         def all_application_helpers
           all_helpers_from_path(helpers_path)
         end
+
     end
 
     # Provides a proxy to access helper methods from outside the view.
     def helpers
       @_helper_proxy ||= view_context
     end
+
   end
+
 end

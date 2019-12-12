@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module AbstractController
+
   module Caching
+
     # Fragment caching is used for caching various blocks within
     # views without caching the entire action as a whole. This is
     # useful when certain elements of an action change frequently or
@@ -16,6 +18,7 @@ module AbstractController
     #
     #   expire_fragment('name_of_cache')
     module Fragments
+
       extend ActiveSupport::Concern
 
       included do
@@ -27,12 +30,11 @@ module AbstractController
 
         self.fragment_cache_keys = []
 
-        if respond_to?(:helper_method)
-          helper_method :combined_fragment_cache_key
-        end
+        helper_method :combined_fragment_cache_key if respond_to?(:helper_method)
       end
 
       module ClassMethods
+
         # Allows you to specify controller-wide key prefixes for
         # cache fragments. Pass either a constant +value+, or a block
         # which computes a value each time a cache key is generated.
@@ -57,6 +59,7 @@ module AbstractController
         def fragment_cache_key(value = nil, &key)
           self.fragment_cache_keys += [key || -> { value }]
         end
+
       end
 
       # Given a key (as described in +expire_fragment+), returns
@@ -67,9 +70,9 @@ module AbstractController
       # with the specified +key+ value.
       def combined_fragment_cache_key(key)
         head = self.class.fragment_cache_keys.map { |k| instance_exec(&k) }
-        tail = key.is_a?(Hash) ? url_for(key).split("://").last : key
+        tail = key.is_a?(Hash) ? url_for(key).split('://').last : key
 
-        cache_key = [:views, ENV["RAILS_CACHE_ID"] || ENV["RAILS_APP_VERSION"], head, tail]
+        cache_key = [:views, ENV['RAILS_CACHE_ID'] || ENV['RAILS_APP_VERSION'], head, tail]
         cache_key.flatten!(1)
         cache_key.compact!
         cache_key
@@ -104,6 +107,7 @@ module AbstractController
       # +key+ exists (see +expire_fragment+ for acceptable formats).
       def fragment_exist?(key, options = nil)
         return unless cache_configured?
+
         key = combined_fragment_cache_key(key)
 
         instrument_fragment_cache :exist_fragment?, key do
@@ -131,6 +135,7 @@ module AbstractController
       # method (or <tt>delete_matched</tt>, for Regexp keys).
       def expire_fragment(key, options = nil)
         return unless cache_configured?
+
         key = combined_fragment_cache_key(key) unless key.is_a?(Regexp)
 
         instrument_fragment_cache :expire_fragment, key do
@@ -145,6 +150,9 @@ module AbstractController
       def instrument_fragment_cache(name, key) # :nodoc:
         ActiveSupport::Notifications.instrument("#{name}.#{instrument_name}", instrument_payload(key)) { yield }
       end
+
     end
+
   end
+
 end

@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
-require "monitor"
+require 'monitor'
 
 module ActionCable
+
   module Server
+
     # A singleton ActionCable::Server instance is available via ActionCable.server. It's used by the Rack process that starts the Action Cable server, but
     # is also used by the user to reach the RemoteConnections object, which is used for finding and disconnecting connections across all servers.
     #
     # Also, this is the server instance used for broadcasting. See Broadcasting for more information.
     class Base
+
       include ActionCable::Server::Broadcasting
       include ActionCable::Server::Connections
 
@@ -16,7 +19,9 @@ module ActionCable
 
       attr_reader :config
 
-      def self.logger; config.logger; end
+      def self.logger
+        config.logger
+      end
       delegate :logger, to: :config
 
       attr_reader :mutex
@@ -45,11 +50,11 @@ module ActionCable
 
         @mutex.synchronize do
           # Shutdown the worker pool
-          @worker_pool.halt if @worker_pool
+          @worker_pool&.halt
           @worker_pool = nil
 
           # Shutdown the pub/sub adapter
-          @pubsub.shutdown if @pubsub
+          @pubsub&.shutdown
           @pubsub = nil
         end
       end
@@ -87,8 +92,11 @@ module ActionCable
       def connection_identifiers
         config.connection_class.call.identifiers
       end
+
     end
 
     ActiveSupport.run_load_hooks(:action_cable, Base.config)
+
   end
+
 end

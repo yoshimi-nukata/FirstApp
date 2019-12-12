@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require "action_view"
-require "action_controller"
-require "action_controller/log_subscriber"
+require 'action_view'
+require 'action_controller'
+require 'action_controller/log_subscriber'
 
 module ActionController
+
   # API Controller is a lightweight version of <tt>ActionController::Base</tt>,
   # created for applications that don't require all functionalities that a complete
   # \Rails controller provides, allowing you to create controllers with just the
@@ -87,6 +88,7 @@ module ActionController
   # if you want to use any other functionality that is not provided
   # by <tt>ActionController::API</tt> out of the box.
   class API < Metal
+
     abstract!
 
     # Shortcut helper that returns all the ActionController::API modules except
@@ -138,7 +140,7 @@ module ActionController
       # Params wrapper should come before instrumentation so they are
       # properly showed in logs
       ParamsWrapper
-    ]
+    ].freeze
 
     MODULES.each do |mod|
       include mod
@@ -146,5 +148,7 @@ module ActionController
 
     ActiveSupport.run_load_hooks(:action_controller_api, self)
     ActiveSupport.run_load_hooks(:action_controller, self)
+
   end
+
 end

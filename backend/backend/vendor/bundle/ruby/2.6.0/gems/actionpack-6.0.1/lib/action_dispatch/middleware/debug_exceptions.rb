@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
-require "action_dispatch/http/request"
-require "action_dispatch/middleware/exception_wrapper"
-require "action_dispatch/routing/inspector"
+require 'action_dispatch/http/request'
+require 'action_dispatch/middleware/exception_wrapper'
+require 'action_dispatch/routing/inspector'
 
-require "active_support/actionable_error"
+require 'active_support/actionable_error'
 
-require "action_view"
-require "action_view/base"
+require 'action_view'
+require 'action_view/base'
 
 module ActionDispatch
+
   # This middleware is responsible for logging exceptions and
   # showing a debugging page in case the request is local.
   class DebugExceptions
+
     cattr_reader :interceptors, instance_accessor: false, default: []
 
     def self.register_interceptor(object = nil, &block)
@@ -31,22 +33,23 @@ module ActionDispatch
       request = ActionDispatch::Request.new env
       _, headers, body = response = @app.call(env)
 
-      if headers["X-Cascade"] == "pass"
+      if headers['X-Cascade'] == 'pass'
         body.close if body.respond_to?(:close)
         raise ActionController::RoutingError, "No route matches [#{env['REQUEST_METHOD']}] #{env['PATH_INFO'].inspect}"
       end
 
       response
-    rescue Exception => exception
-      invoke_interceptors(request, exception)
-      raise exception unless request.show_exceptions?
-      render_exception(request, exception)
+    rescue Exception => e
+      invoke_interceptors(request, e)
+      raise e unless request.show_exceptions?
+
+      render_exception(request, e)
     end
 
     private
 
       def invoke_interceptors(request, exception)
-        backtrace_cleaner = request.get_header("action_dispatch.backtrace_cleaner")
+        backtrace_cleaner = request.get_header('action_dispatch.backtrace_cleaner')
         wrapper = ExceptionWrapper.new(backtrace_cleaner, exception)
 
         @interceptors.each do |interceptor|
@@ -57,11 +60,11 @@ module ActionDispatch
       end
 
       def render_exception(request, exception)
-        backtrace_cleaner = request.get_header("action_dispatch.backtrace_cleaner")
+        backtrace_cleaner = request.get_header('action_dispatch.backtrace_cleaner')
         wrapper = ExceptionWrapper.new(backtrace_cleaner, exception)
         log_error(request, wrapper)
 
-        if request.get_header("action_dispatch.show_detailed_exceptions")
+        if request.get_header('action_dispatch.show_detailed_exceptions')
           begin
             content_type = request.formats.first
           rescue Mime::Type::InvalidMimeType
@@ -84,10 +87,10 @@ module ActionDispatch
 
         if request.xhr?
           body = template.render(template: file, layout: false, formats: [:text])
-          format = "text/plain"
+          format = 'text/plain'
         else
-          body = template.render(template: file, layout: "rescues/layout")
-          format = "text/html"
+          body = template.render(template: file, layout: 'rescues/layout')
+          format = 'text/html'
         end
         render(wrapper.status_code, body, format)
       end
@@ -95,7 +98,7 @@ module ActionDispatch
       def render_for_api_request(content_type, wrapper)
         body = {
           status: wrapper.status_code,
-          error:  Rack::Utils::HTTP_STATUS_CODES.fetch(
+          error: Rack::Utils::HTTP_STATUS_CODES.fetch(
             wrapper.status_code,
             Rack::Utils::HTTP_STATUS_CODES[500]
           ),
@@ -132,7 +135,7 @@ module ActionDispatch
       end
 
       def render(status, body, format)
-        [status, { "Content-Type" => "#{format}; charset=#{Response.default_charset}", "Content-Length" => body.bytesize.to_s }, [body]]
+        [status, { 'Content-Type' => "#{format}; charset=#{Response.default_charset}", 'Content-Length' => body.bytesize.to_s }, [body]]
       end
 
       def log_error(request, wrapper)
@@ -146,10 +149,10 @@ module ActionDispatch
 
         ActiveSupport::Deprecation.silence do
           message = []
-          message << "  "
+          message << '  '
           message << "#{exception.class} (#{exception.message}):"
           message.concat(exception.annotated_source_code) if exception.respond_to?(:annotated_source_code)
-          message << "  "
+          message << '  '
           message.concat(trace)
 
           log_array(logger, message)
@@ -157,7 +160,7 @@ module ActionDispatch
       end
 
       def log_array(logger, array)
-        if logger.formatter && logger.formatter.respond_to?(:tags_text)
+        if logger.formatter&.respond_to?(:tags_text)
           logger.fatal array.join("\n#{logger.formatter.tags_text}")
         else
           logger.fatal array.join("\n")
@@ -173,13 +176,13 @@ module ActionDispatch
       end
 
       def routes_inspector(exception)
-        if @routes_app.respond_to?(:routes) && (exception.is_a?(ActionController::RoutingError) || exception.is_a?(ActionView::Template::Error))
-          ActionDispatch::Routing::RoutesInspector.new(@routes_app.routes.routes)
-        end
+        ActionDispatch::Routing::RoutesInspector.new(@routes_app.routes.routes) if @routes_app.respond_to?(:routes) && (exception.is_a?(ActionController::RoutingError) || exception.is_a?(ActionView::Template::Error))
       end
 
       def api_request?(content_type)
         @response_format == :api && !content_type.html?
       end
+
   end
+
 end

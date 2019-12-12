@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Server
+
     # Collection class for all the connections that have been established on this specific server. Remember, usually you'll run many Action Cable servers, so
     # you can't use this collection as a full list of all of the connections established against your application. Instead, use RemoteConnections for that.
     module Connections # :nodoc:
+
       BEAT_INTERVAL = 3
 
       def connections
@@ -31,6 +34,9 @@ module ActionCable
       def open_connections_statistics
         connections.map(&:statistics)
       end
+
     end
+
   end
+
 end

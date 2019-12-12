@@ -1,25 +1,30 @@
 # frozen_string_literal: true
 
-require "rack/utils"
-require "rack/request"
-require "rack/session/abstract/id"
-require "action_dispatch/middleware/cookies"
-require "action_dispatch/request/session"
+require 'rack/utils'
+require 'rack/request'
+require 'rack/session/abstract/id'
+require 'action_dispatch/middleware/cookies'
+require 'action_dispatch/request/session'
 
 module ActionDispatch
+
   module Session
+
     class SessionRestoreError < StandardError #:nodoc:
+
       def initialize
         super("Session contains objects whose class definition isn't available.\n" \
           "Remember to require the classes for all objects kept in the session.\n" \
-          "(Original exception: #{$!.message} [#{$!.class}])\n")
-        set_backtrace $!.backtrace
+          "(Original exception: #{$ERROR_INFO.message} [#{$ERROR_INFO.class}])\n")
+        set_backtrace $ERROR_INFO.backtrace
       end
+
     end
 
     module Compatibility
+
       def initialize(app, options = {})
-        options[:key] ||= "_session_id"
+        options[:key] ||= '_session_id'
         super
       end
 
@@ -29,19 +34,21 @@ module ActionDispatch
         sid
       end
 
-    private
+      private
 
-      def initialize_sid # :doc:
-        @default_options.delete(:sidbits)
-        @default_options.delete(:secure_random)
-      end
+        def initialize_sid # :doc:
+          @default_options.delete(:sidbits)
+          @default_options.delete(:secure_random)
+        end
 
-      def make_request(env)
-        ActionDispatch::Request.new env
-      end
+        def make_request(env)
+          ActionDispatch::Request.new env
+        end
+
     end
 
     module StaleSessionCheck
+
       def load_session(env)
         stale_session_check! { super }
       end
@@ -52,11 +59,11 @@ module ActionDispatch
 
       def stale_session_check!
         yield
-      rescue ArgumentError => argument_error
-        if argument_error.message =~ %r{undefined class/module ([\w:]*\w)}
+      rescue ArgumentError => e
+        if e.message =~ %r{undefined class/module ([\w:]*\w)}
           begin
             # Note that the regexp does not allow $1 to end with a ':'.
-            $1.constantize
+            Regexp.last_match(1).constantize
           rescue LoadError, NameError
             raise ActionDispatch::Session::SessionRestoreError
           end
@@ -65,9 +72,11 @@ module ActionDispatch
           raise
         end
       end
+
     end
 
     module SessionObject # :nodoc:
+
       def prepare_session(req)
         Request::Session.create(self, req, @default_options)
       end
@@ -75,18 +84,23 @@ module ActionDispatch
       def loaded_session?(session)
         !session.is_a?(Request::Session) || session.loaded?
       end
+
     end
 
     class AbstractStore < Rack::Session::Abstract::Persisted
+
       include Compatibility
       include StaleSessionCheck
       include SessionObject
 
       private
 
-        def set_cookie(request, session_id, cookie)
+        def set_cookie(request, _session_id, cookie)
           request.cookie_jar[key] = cookie
         end
+
     end
+
   end
+
 end

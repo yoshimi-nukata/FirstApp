@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # Ingests inbound emails from Mailgun. Requires the following parameters:
   #
   # - +body-mime+: The full RFC 822 message
@@ -43,13 +44,15 @@ module ActionMailbox
   #    If your application lived at <tt>https://example.com</tt>, you would specify the fully-qualified URL
   #    <tt>https://example.com/rails/action_mailbox/mailgun/inbound_emails/mime</tt>.
   class Ingresses::Mailgun::InboundEmailsController < ActionMailbox::BaseController
+
     before_action :authenticate
 
     def create
-      ActionMailbox::InboundEmail.create_and_extract_message_id! params.require("body-mime")
+      ActionMailbox::InboundEmail.create_and_extract_message_id! params.require('body-mime')
     end
 
     private
+
       def authenticate
         head :unauthorized unless authenticated?
       end
@@ -57,9 +60,9 @@ module ActionMailbox
       def authenticated?
         if key.present?
           Authenticator.new(
-            key:       key,
+            key: key,
             timestamp: params.require(:timestamp),
-            token:     params.require(:token),
+            token: params.require(:token),
             signature: params.require(:signature)
           ).authenticated?
         else
@@ -71,14 +74,18 @@ module ActionMailbox
       end
 
       def key
-        Rails.application.credentials.dig(:action_mailbox, :mailgun_api_key) || ENV["MAILGUN_INGRESS_API_KEY"]
+        Rails.application.credentials.dig(:action_mailbox, :mailgun_api_key) || ENV['MAILGUN_INGRESS_API_KEY']
       end
 
       class Authenticator
+
         attr_reader :key, :timestamp, :token, :signature
 
         def initialize(key:, timestamp:, token:, signature:)
-          @key, @timestamp, @token, @signature = key, Integer(timestamp), token, signature
+          @key = key
+          @timestamp = Integer(timestamp)
+          @token = token
+          @signature = signature
         end
 
         def authenticated?
@@ -86,6 +93,7 @@ module ActionMailbox
         end
 
         private
+
           def signed?
             ActiveSupport::SecurityUtils.secure_compare signature, expected_signature
           end
@@ -98,6 +106,9 @@ module ActionMailbox
           def expected_signature
             OpenSSL::HMAC.hexdigest OpenSSL::Digest::SHA256.new, key, "#{timestamp}#{token}"
           end
+
       end
+
   end
+
 end

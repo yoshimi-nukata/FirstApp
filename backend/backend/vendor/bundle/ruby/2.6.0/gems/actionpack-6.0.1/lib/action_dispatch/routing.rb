@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/string/filters"
+require 'active_support/core_ext/string/filters'
 
 module ActionDispatch
+
   # The routing module provides URL rewriting in native Ruby. It's a way to
   # redirect incoming requests to controllers and actions. This replaces
   # mod_rewrite rules. Best of all, Rails' \Routing works with any web server.
@@ -247,6 +248,7 @@ module ActionDispatch
   # using <tt>-g</tt>. Useful in conjunction with <tt>--expanded</tt>
   # which displays routes vertically.
   module Routing
+
     extend ActiveSupport::Autoload
 
     autoload :Mapper
@@ -255,7 +257,9 @@ module ActionDispatch
     autoload :UrlFor
     autoload :PolymorphicRoutes
 
-    SEPARATORS = %w( / . ? ) #:nodoc:
-    HTTP_METHODS = [:get, :head, :post, :patch, :put, :delete, :options] #:nodoc:
+    SEPARATORS = %w[/ . ?].freeze #:nodoc:
+    HTTP_METHODS = [:get, :head, :post, :patch, :put, :delete, :options].freeze #:nodoc:
+
   end
+
 end

@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController #:nodoc:
+
   module ContentSecurityPolicy
+
     # TODO: Documentation
     extend ActiveSupport::Concern
 
@@ -14,7 +16,8 @@ module ActionController #:nodoc:
     end
 
     module ClassMethods
-      def content_security_policy(enabled = true, **options, &block)
+
+      def content_security_policy(enabled = true, **options)
         before_action(options) do
           if block_given?
             policy = current_content_security_policy
@@ -22,9 +25,7 @@ module ActionController #:nodoc:
             request.content_security_policy = policy
           end
 
-          unless enabled
-            request.content_security_policy = nil
-          end
+          request.content_security_policy = nil unless enabled
         end
       end
 
@@ -33,6 +34,7 @@ module ActionController #:nodoc:
           request.content_security_policy_report_only = report_only
         end
       end
+
     end
 
     private
@@ -48,5 +50,7 @@ module ActionController #:nodoc:
       def current_content_security_policy
         request.content_security_policy.try(:clone) || ActionDispatch::ContentSecurityPolicy.new
       end
+
   end
+
 end

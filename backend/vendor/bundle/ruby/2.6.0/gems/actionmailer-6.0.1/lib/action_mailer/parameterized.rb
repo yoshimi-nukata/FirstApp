@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionMailer
+
   # Provides the option to parameterize mailers in order to share instance variable
   # setup, processing, and common headers.
   #
@@ -85,6 +86,7 @@ module ActionMailer
   #
   #   InvitationsMailer.with(inviter: person_a, invitee: person_b).account_invitation.deliver_later
   module Parameterized
+
     extend ActiveSupport::Concern
 
     included do
@@ -92,6 +94,7 @@ module ActionMailer
     end
 
     module ClassMethods
+
       # Provide the parameters to the mailer in order to use them in the instance methods and callbacks.
       #
       #   InvitationsMailer.with(inviter: person_a, invitee: person_b).account_invitation.deliver_later
@@ -100,14 +103,18 @@ module ActionMailer
       def with(params)
         ActionMailer::Parameterized::Mailer.new(self, params)
       end
+
     end
 
     class Mailer # :nodoc:
+
       def initialize(mailer, params)
-        @mailer, @params = mailer, params
+        @mailer = mailer
+        @params = params
       end
 
       private
+
         def method_missing(method_name, *args)
           if @mailer.action_methods.include?(method_name.to_s)
             ActionMailer::Parameterized::MessageDelivery.new(@mailer, method_name, @params, *args)
@@ -119,21 +126,26 @@ module ActionMailer
         def respond_to_missing?(method, include_all = false)
           @mailer.respond_to?(method, include_all)
         end
+
     end
 
     class DeliveryJob < ActionMailer::DeliveryJob # :nodoc:
+
       def perform(mailer, mail_method, delivery_method, params, *args)
         mailer.constantize.with(params).public_send(mail_method, *args).send(delivery_method)
       end
+
     end
 
     class MessageDelivery < ActionMailer::MessageDelivery # :nodoc:
+
       def initialize(mailer_class, action, params, *args)
         super(mailer_class, action, *args)
         @params = params
       end
 
       private
+
         def processed_mailer
           @processed_mailer ||= @mailer_class.new.tap do |mailer|
             mailer.params = @params
@@ -166,6 +178,9 @@ module ActionMailer
             [@mailer_class.name, @action.to_s, delivery_method.to_s, @params, *@args]
           end
         end
+
     end
+
   end
+
 end

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
-require "strscan"
+require 'strscan'
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     class Scanner # :nodoc:
+
       def initialize
         @ss = nil
       end
@@ -42,30 +45,31 @@ module ActionDispatch
         end
 
         def scan
-          case
-            # /
-          when @ss.skip(/\//)
-            [:SLASH, "/"]
-          when @ss.skip(/\(/)
-            [:LPAREN, "("]
-          when @ss.skip(/\)/)
-            [:RPAREN, ")"]
-          when @ss.skip(/\|/)
-            [:OR, "|"]
-          when @ss.skip(/\./)
-            [:DOT, "."]
-          when text = dedup_scan(/:\w+/)
+          if @ss.skip(%r{/})
+            [:SLASH, '/']
+          elsif @ss.skip(/\(/)
+            [:LPAREN, '(']
+          elsif @ss.skip(/\)/)
+            [:RPAREN, ')']
+          elsif @ss.skip(/\|/)
+            [:OR, '|']
+          elsif @ss.skip(/\./)
+            [:DOT, '.']
+          elsif text = dedup_scan(/:\w+/)
             [:SYMBOL, text]
-          when text = dedup_scan(/\*\w+/)
+          elsif text = dedup_scan(/\*\w+/)
             [:STAR, text]
-          when text = @ss.scan(/(?:[\w%\-~!$&'*+,;=@]|\\[:()])+/)
-            text.tr! "\\", ""
+          elsif text = @ss.scan(/(?:[\w%\-~!$&'*+,;=@]|\\[:()])+/)
+            text.tr! '\\', ''
             [:LITERAL, -text]
             # any char
-          when text = dedup_scan(/./)
+          elsif text = dedup_scan(/./)
             [:LITERAL, text]
           end
         end
+
     end
+
   end
+
 end

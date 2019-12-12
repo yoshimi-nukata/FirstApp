@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require "nio"
-require "thread"
-
+require 'nio'
 module ActionCable
+
   module Connection
+
     class StreamEventLoop
+
       def initialize
         @nio = @executor = @thread = nil
         @map = {}
@@ -27,15 +28,15 @@ module ActionCable
       end
 
       def attach(io, stream)
-        @todo << lambda do
+        @todo << -> do
           @map[io] = @nio.register(io, :r)
           @map[io].value = stream
         end
         wakeup
       end
 
-      def detach(io, stream)
-        @todo << lambda do
+      def detach(io, _stream)
+        @todo << -> do
           @nio.deregister io
           @map.delete io
           io.close
@@ -44,7 +45,7 @@ module ActionCable
       end
 
       def writes_pending(io)
-        @todo << lambda do
+        @todo << -> do
           if monitor = @map[io]
             monitor.interests = :rw
           end
@@ -58,18 +59,19 @@ module ActionCable
       end
 
       private
+
         def spawn
-          return if @thread && @thread.status
+          return if @thread&.status
 
           @spawn_mutex.synchronize do
-            return if @thread && @thread.status
+            return if @thread&.status
 
             @nio ||= NIO::Selector.new
 
             @executor ||= Concurrent::ThreadPoolExecutor.new(
               min_threads: 1,
               max_threads: 10,
-              max_queue: 0,
+              max_queue: 0
             )
 
             @thread = Thread.new { run }
@@ -89,9 +91,7 @@ module ActionCable
               break
             end
 
-            until @todo.empty?
-              @todo.pop(true).call
-            end
+            @todo.pop(true).call until @todo.empty?
 
             next unless monitors = @nio.select
 
@@ -101,9 +101,7 @@ module ActionCable
 
               begin
                 if monitor.writable?
-                  if stream.flush_write_buffer
-                    monitor.interests = :r
-                  end
+                  monitor.interests = :r if stream.flush_write_buffer
                   next unless monitor.readable?
                 end
 
@@ -116,14 +114,14 @@ module ActionCable
                 else
                   stream.receive incoming
                 end
-              rescue
+              rescue StandardError
                 # We expect one of EOFError or Errno::ECONNRESET in
                 # normal operation (when the client goes away). But if
                 # anything else goes wrong, this is still the best way
                 # to handle it.
                 begin
                   stream.close
-                rescue
+                rescue StandardError
                   @nio.deregister io
                   @map.delete io
                 end
@@ -131,6 +129,9 @@ module ActionCable
             end
           end
         end
+
     end
+
   end
+
 end

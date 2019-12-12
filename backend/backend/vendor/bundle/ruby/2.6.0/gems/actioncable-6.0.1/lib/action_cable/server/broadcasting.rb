@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Server
+
     # Broadcasting is how other parts of your application can send messages to a channel's subscribers. As explained in Channel, most of the time, these
     # broadcastings are streamed directly to the clients subscribed to the named broadcasting. Let's explain with a full-stack example:
     #
@@ -20,6 +22,7 @@ module ActionCable
     #     received: (data) ->
     #       new Notification data['title'], body: data['body']
     module Broadcasting
+
       # Broadcast a hash directly to a named <tt>broadcasting</tt>. This will later be JSON encoded.
       def broadcast(broadcasting, message, coder: ActiveSupport::JSON)
         broadcaster_for(broadcasting, coder: coder).broadcast(message)
@@ -32,23 +35,31 @@ module ActionCable
       end
 
       private
+
         class Broadcaster
+
           attr_reader :server, :broadcasting, :coder
 
           def initialize(server, broadcasting, coder:)
-            @server, @broadcasting, @coder = server, broadcasting, coder
+            @server = server
+            @broadcasting = broadcasting
+            @coder = coder
           end
 
           def broadcast(message)
             server.logger.debug "[ActionCable] Broadcasting to #{broadcasting}: #{message.inspect}"
 
             payload = { broadcasting: broadcasting, message: message, coder: coder }
-            ActiveSupport::Notifications.instrument("broadcast.action_cable", payload) do
+            ActiveSupport::Notifications.instrument('broadcast.action_cable', payload) do
               encoded = coder ? coder.encode(message) : message
               server.pubsub.broadcast broadcasting, encoded
             end
           end
+
         end
+
     end
+
   end
+
 end

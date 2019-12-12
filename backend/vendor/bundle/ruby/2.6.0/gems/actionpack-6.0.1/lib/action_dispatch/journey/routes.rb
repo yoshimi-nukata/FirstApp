@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     # The Routing table. Contains all routes for a system. Routes can be
     # added to the table by calling Routes#add_route.
     class Routes # :nodoc:
+
       include Enumerable
 
       attr_reader :routes, :custom_routes, :anchored_routes
@@ -24,7 +27,7 @@ module ActionDispatch
       def length
         routes.length
       end
-      alias :size :length
+      alias size length
 
       def last
         routes.last
@@ -76,6 +79,9 @@ module ActionDispatch
           @ast                = nil
           @simulator          = nil
         end
+
     end
+
   end
+
 end

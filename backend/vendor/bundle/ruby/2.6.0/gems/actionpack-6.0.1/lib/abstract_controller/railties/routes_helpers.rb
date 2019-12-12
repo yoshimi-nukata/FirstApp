@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 module AbstractController
+
   module Railties
+
     module RoutesHelpers
+
       def self.with(routes, include_path_helpers = true)
         Module.new do
           define_method(:inherited) do |klass|
@@ -15,6 +18,9 @@ module AbstractController
           end
         end
       end
+
     end
+
   end
+
 end

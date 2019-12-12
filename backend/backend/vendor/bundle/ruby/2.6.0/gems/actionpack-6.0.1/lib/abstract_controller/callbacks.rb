@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module AbstractController
+
   # = Abstract Controller Callbacks
   #
   # Abstract Controller provides hooks during the life cycle of a controller action.
@@ -22,6 +23,7 @@ module AbstractController
   # NOTE: Calling the same callback multiple times will overwrite previous callback definitions.
   #
   module Callbacks
+
     extend ActiveSupport::Concern
 
     # Uses ActiveSupport::Callbacks as the base functionality. For
@@ -44,6 +46,7 @@ module AbstractController
     end
 
     module ClassMethods
+
       # If +:only+ or +:except+ are used, convert the options into the
       # +:if+ and +:unless+ options of ActiveSupport::Callbacks.
       #
@@ -219,6 +222,9 @@ module AbstractController
         # *_action is the same as append_*_action
         alias_method :"append_#{callback}_action", :"#{callback}_action"
       end
+
     end
+
   end
+
 end

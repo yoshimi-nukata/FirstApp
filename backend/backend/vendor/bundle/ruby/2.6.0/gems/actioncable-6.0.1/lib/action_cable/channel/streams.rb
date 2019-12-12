@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Channel
+
     # Streams allow channels to route broadcastings to the subscriber. A broadcasting is, as discussed elsewhere, a pubsub queue where any data
     # placed into it is automatically sent to the clients that are connected at that time. It's purely an online queue, though. If you're not
     # streaming a broadcasting at the very moment it sends out an update, you will not get that update, even if you connect after it has been sent.
@@ -63,6 +65,7 @@ module ActionCable
     #
     # You can stop streaming from all broadcasts by calling #stop_all_streams.
     module Streams
+
       extend ActiveSupport::Concern
 
       included do
@@ -82,10 +85,10 @@ module ActionCable
         # Build a stream handler by wrapping the user-provided callback with
         # a decoder or defaulting to a JSON-decoding retransmitter.
         handler = worker_pool_stream_handler(broadcasting, callback || block, coder: coder)
-        streams << [ broadcasting, handler ]
+        streams << [broadcasting, handler]
 
         connection.server.event_loop.post do
-          pubsub.subscribe(broadcasting, handler, lambda do
+          pubsub.subscribe(broadcasting, handler, -> do
             ensure_confirmation_sent
             logger.info "#{self.class.name} is streaming from #{broadcasting}"
           end)
@@ -111,6 +114,7 @@ module ActionCable
       end
 
       private
+
         delegate :pubsub, to: :connection
 
         def streams
@@ -122,7 +126,7 @@ module ActionCable
         def worker_pool_stream_handler(broadcasting, user_handler, coder: nil)
           handler = stream_handler(broadcasting, user_handler, coder: coder)
 
-          -> message do
+          ->(message) do
             connection.worker_pool.async_invoke handler, :call, message, connection: connection
           end
         end
@@ -154,7 +158,7 @@ module ActionCable
 
         def stream_decoder(handler = identity_handler, coder:)
           if coder
-            -> message { handler.(coder.decode(message)) }
+            ->(message) { handler.call(coder.decode(message)) }
           else
             handler
           end
@@ -163,14 +167,17 @@ module ActionCable
         def stream_transmitter(handler = identity_handler, broadcasting:)
           via = "streamed from #{broadcasting}"
 
-          -> (message) do
-            transmit handler.(message), via: via
+          ->(message) do
+            transmit handler.call(message), via: via
           end
         end
 
         def identity_handler
-          -> message { message }
+          ->(message) { message }
         end
+
     end
+
   end
+
 end

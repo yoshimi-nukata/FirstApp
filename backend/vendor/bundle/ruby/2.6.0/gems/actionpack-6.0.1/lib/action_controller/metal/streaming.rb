@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require "rack/chunked"
+require 'rack/chunked'
 
 module ActionController #:nodoc:
+
   # Allows views to be streamed back to the client as they are rendered.
   #
   # By default, Rails renders views by first rendering the template
@@ -193,6 +194,7 @@ module ActionController #:nodoc:
   # To be described.
   #
   module Streaming
+
     extend ActiveSupport::Concern
 
     private
@@ -201,12 +203,12 @@ module ActionController #:nodoc:
       def _process_options(options)
         super
         if options[:stream]
-          if request.version == "HTTP/1.0"
+          if request.version == 'HTTP/1.0'
             options.delete(:stream)
           else
-            headers["Cache-Control"] ||= "no-cache"
-            headers["Transfer-Encoding"] = "chunked"
-            headers.delete("Content-Length")
+            headers['Cache-Control'] ||= 'no-cache'
+            headers['Transfer-Encoding'] = 'chunked'
+            headers.delete('Content-Length')
           end
         end
       end
@@ -219,5 +221,7 @@ module ActionController #:nodoc:
           super
         end
       end
+
   end
+
 end

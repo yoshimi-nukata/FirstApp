@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Channel
+
     module PeriodicTimers
+
       extend ActiveSupport::Concern
 
       included do
@@ -13,6 +16,7 @@ module ActionCable
       end
 
       module ClassMethods
+
         # Periodically performs a task on the channel, like updating an online
         # user counter, polling a backend for new status messages, sending
         # regular "heartbeat" messages, or doing some internal work and giving
@@ -31,7 +35,8 @@ module ActionCable
         def periodically(callback_or_method_name = nil, every:, &block)
           callback =
             if block_given?
-              raise ArgumentError, "Pass a block or provide a callback arg, not both" if callback_or_method_name
+              raise ArgumentError, 'Pass a block or provide a callback arg, not both' if callback_or_method_name
+
               block
             else
               case callback_or_method_name
@@ -44,15 +49,15 @@ module ActionCable
               end
             end
 
-          unless every.kind_of?(Numeric) && every > 0
-            raise ArgumentError, "Expected every: to be a positive number of seconds, got #{every.inspect}"
-          end
+          raise ArgumentError, "Expected every: to be a positive number of seconds, got #{every.inspect}" unless every.is_a?(Numeric) && every > 0
 
-          self.periodic_timers += [[ callback, every: every ]]
+          self.periodic_timers += [[callback, every: every]]
         end
+
       end
 
       private
+
         def active_periodic_timers
           @active_periodic_timers ||= []
         end
@@ -70,9 +75,12 @@ module ActionCable
         end
 
         def stop_periodic_timers
-          active_periodic_timers.each { |timer| timer.shutdown }
+          active_periodic_timers.each(&:shutdown)
           active_periodic_timers.clear
         end
+
     end
+
   end
+
 end

@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require "rack/session/abstract/id"
+require 'rack/session/abstract/id'
 
 module ActionDispatch
+
   class Request
+
     # Session is responsible for lazily loading the session from store.
     class Session # :nodoc:
+
       ENV_SESSION_KEY         = Rack::RACK_SESSION # :nodoc:
       ENV_SESSION_OPTIONS_KEY = Rack::RACK_SESSION_OPTIONS # :nodoc:
 
@@ -32,6 +35,7 @@ module ActionDispatch
       end
 
       class Options #:nodoc:
+
         def self.set(req, options)
           req.set_header ENV_SESSION_OPTIONS_KEY, options
         end
@@ -50,14 +54,23 @@ module ActionDispatch
         end
 
         def id(req)
-          @delegate.fetch(:id) {
+          @delegate.fetch(:id) do
             @by.send(:extract_session_id, req)
-          }
+          end
         end
 
-        def []=(k, v);        @delegate[k] = v; end
-        def to_hash;          @delegate.dup; end
-        def values_at(*args); @delegate.values_at(*args); end
+        def []=(k, v)
+          @delegate[k] = v
+        end
+
+        def to_hash
+          @delegate.dup
+        end
+
+        def values_at(*args)
+          @delegate.values_at(*args)
+        end
+
       end
 
       def initialize(by, req)
@@ -106,8 +119,8 @@ module ActionDispatch
         load_for_read!
         @delegate.key?(key.to_s)
       end
-      alias :key? :has_key?
-      alias :include? :has_key?
+      alias key? has_key?
+      alias include? has_key?
 
       # Returns keys of the session as Array.
       def keys
@@ -138,7 +151,7 @@ module ActionDispatch
         load_for_read!
         @delegate.dup.delete_if { |_, v| v.nil? }
       end
-      alias :to_h :to_hash
+      alias to_h to_hash
 
       # Updates the session with given Hash.
       #
@@ -194,6 +207,7 @@ module ActionDispatch
 
       def exists?
         return @exists unless @exists.nil?
+
         @exists = @by.send(:session_exists?, @req)
       end
 
@@ -233,10 +247,13 @@ module ActionDispatch
         end
 
         def stringify_keys(other)
-          other.each_with_object({}) { |(key, value), hash|
+          other.each_with_object({}) do |(key, value), hash|
             hash[key.to_s] = value
-          }
+          end
         end
+
     end
+
   end
+
 end

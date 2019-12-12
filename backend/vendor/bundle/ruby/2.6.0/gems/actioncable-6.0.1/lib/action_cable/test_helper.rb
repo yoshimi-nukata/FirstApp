@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   # Provides helper methods for testing Action Cable broadcasting
   module TestHelper
+
     def before_setup # :nodoc:
       server = ActionCable.server
       test_adapter = ActionCable::SubscriptionAdapter::Test.new(server)
@@ -126,8 +128,11 @@ module ActionCable
     delegate :broadcasts, :clear_messages, to: :pubsub_adapter
 
     private
+
       def broadcasts_size(channel)
         broadcasts(channel).size
       end
+
   end
+
 end

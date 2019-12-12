@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require "active_support/log_subscriber"
+require 'active_support/log_subscriber'
 
 module ActionMailer
+
   # Implements the ActiveSupport::LogSubscriber for logging notifications when
   # email is delivered or received.
   class LogSubscriber < ActiveSupport::LogSubscriber
+
     # An email was delivered.
     def deliver(event)
       info do
@@ -39,7 +41,9 @@ module ActionMailer
     def logger
       ActionMailer::Base.logger
     end
+
   end
+
 end
 
 ActionMailer::LogSubscriber.attach_to :action_mailer

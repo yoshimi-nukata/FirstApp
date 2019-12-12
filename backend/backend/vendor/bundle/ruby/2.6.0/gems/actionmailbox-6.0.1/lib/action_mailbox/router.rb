@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # Encapsulates the routes that live on the ApplicationMailbox and performs the actual routing when
   # an inbound_email is received.
   class Router
+
     class RoutingError < StandardError; end
 
     def initialize
@@ -31,12 +33,15 @@ module ActionMailbox
     end
 
     private
+
       attr_reader :routes
 
       def match_to_mailbox(inbound_email)
         routes.detect { |route| route.match?(inbound_email) }.try(:mailbox_class)
       end
+
   end
+
 end
 
-require "action_mailbox/router/route"
+require 'action_mailbox/router/route'

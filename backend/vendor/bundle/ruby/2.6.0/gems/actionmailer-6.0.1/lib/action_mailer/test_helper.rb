@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require "active_job"
+require 'active_job'
 
 module ActionMailer
+
   # Provides helper methods for testing Action Mailer, including #assert_emails
   # and #assert_no_emails.
   module TestHelper
+
     include ActiveJob::TestHelper
 
     # Asserts that the number of emails sent matches the given number.
@@ -123,11 +125,11 @@ module ActionMailer
     #       ContactMailer.with(email: 'user@example.com').welcome.deliver_later
     #     end
     #   end
-    def assert_enqueued_email_with(mailer, method, args: nil, queue: "mailers", &block)
-      args = if args.is_a?(Hash)
-        [mailer.to_s, method.to_s, "deliver_now", params: args, args: []]
+    def assert_enqueued_email_with(mailer, method, args: nil, queue: 'mailers', &block)
+      if args.is_a?(Hash)
+        args = [mailer.to_s, method.to_s, 'deliver_now', params: args, args: []]
       else
-        [mailer.to_s, method.to_s, "deliver_now", args: Array(args)]
+        args = [mailer.to_s, method.to_s, 'deliver_now', args: Array(args)]
       end
       assert_enqueued_with(job: mailer.delivery_job, args: args, queue: queue, &block)
     end
@@ -158,5 +160,7 @@ module ActionMailer
 
         Base.descendants.map(&:delivery_job).include?(job_class)
       end
+
   end
+
 end

@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController #:nodoc:
+
   module Flash
+
     extend ActiveSupport::Concern
 
     included do
@@ -12,6 +14,7 @@ module ActionController #:nodoc:
     end
 
     module ClassMethods
+
       # Creates new flash types. You can pass as many types as you want to create
       # flash types other than the default <tt>alert</tt> and <tt>notice</tt> in
       # your controllers and views. For instance:
@@ -41,9 +44,11 @@ module ActionController #:nodoc:
           self._flash_types += [type]
         end
       end
+
     end
 
     private
+
       def redirect_to(options = {}, response_options_and_flash = {}) #:doc:
         self.class._flash_types.each do |flash_type|
           if type = response_options_and_flash.delete(flash_type)
@@ -57,5 +62,7 @@ module ActionController #:nodoc:
 
         super(options, response_options_and_flash)
       end
+
   end
+
 end

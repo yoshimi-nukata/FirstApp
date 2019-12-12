@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController
+
   module Head
+
     # Returns a response that has no content (merely headers). The options
     # argument is interpreted to be a hash of header names and values.
     # This allows you to easily return a response that consists only of
@@ -19,9 +21,7 @@ module ActionController
     #
     # See Rack::Utils::SYMBOL_TO_STATUS_CODE for a full list of valid +status+ symbols.
     def head(status, options = {})
-      if status.is_a?(Hash)
-        raise ArgumentError, "#{status.inspect} is not a valid value for `status`."
-      end
+      raise ArgumentError, "#{status.inspect} is not a valid value for `status`." if status.is_a?(Hash)
 
       status ||= :ok
 
@@ -29,13 +29,13 @@ module ActionController
       content_type = options.delete(:content_type)
 
       options.each do |key, value|
-        headers[key.to_s.dasherize.split("-").each { |v| v[0] = v[0].chr.upcase }.join("-")] = value.to_s
+        headers[key.to_s.dasherize.split('-').each { |v| v[0] = v[0].chr.upcase }.join('-')] = value.to_s
       end
 
       self.status = status
       self.location = url_for(location) if location
 
-      self.response_body = ""
+      self.response_body = ''
 
       if include_content?(response_code)
         self.content_type = content_type || (Mime[formats.first] if formats) || Mime[:html]
@@ -46,6 +46,7 @@ module ActionController
     end
 
     private
+
       def include_content?(status)
         case status
         when 100..199
@@ -56,5 +57,7 @@ module ActionController
           true
         end
       end
+
   end
+
 end

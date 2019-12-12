@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require "active_job"
+require 'active_job'
 
 module ActionMailer
+
   # The <tt>ActionMailer::MailDeliveryJob</tt> class is used when you
   # want to send emails outside of the request-response cycle. It supports
   # sending either parameterized or normal mail.
   #
   # Exceptions are rescued and handled by the mailer class.
   class MailDeliveryJob < ActiveJob::Base # :nodoc:
+
     queue_as { ActionMailer::Base.deliver_later_queue_name }
 
     rescue_from StandardError, with: :handle_exception_with_mailer_class
@@ -19,6 +21,7 @@ module ActionMailer
     end
 
     private
+
       # "Deserialize" the mailer class name by hand in case another argument
       # (like a Global ID reference) raised DeserializationError.
       def mailer_class
@@ -34,5 +37,7 @@ module ActionMailer
           raise exception
         end
       end
+
   end
+
 end

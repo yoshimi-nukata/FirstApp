@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require "active_support/parameter_filter"
+require 'active_support/parameter_filter'
 
 module ActionDispatch
+
   module Http
+
     # Allows you to specify sensitive parameters which will be replaced from
     # the request log by looking in the query string of the request and all
     # sub-hashes of the params hash to filter. Filtering only certain sub-keys
@@ -27,7 +29,8 @@ module ActionDispatch
     #   end
     #   => reverses the value to all keys matching /secret/i
     module FilterParameters
-      ENV_MATCH = [/RAW_POST_DATA/, "rack.request.form_vars"] # :nodoc:
+
+      ENV_MATCH = [/RAW_POST_DATA/, 'rack.request.form_vars'].freeze # :nodoc:
       NULL_PARAM_FILTER = ActiveSupport::ParameterFilter.new # :nodoc:
       NULL_ENV_FILTER   = ActiveSupport::ParameterFilter.new ENV_MATCH # :nodoc:
 
@@ -55,32 +58,35 @@ module ActionDispatch
         @filtered_path ||= query_string.empty? ? path : "#{path}?#{filtered_query_string}"
       end
 
-    private
+      private
 
-      def parameter_filter # :doc:
-        parameter_filter_for fetch_header("action_dispatch.parameter_filter") {
-          return NULL_PARAM_FILTER
-        }
-      end
-
-      def env_filter # :doc:
-        user_key = fetch_header("action_dispatch.parameter_filter") {
-          return NULL_ENV_FILTER
-        }
-        parameter_filter_for(Array(user_key) + ENV_MATCH)
-      end
-
-      def parameter_filter_for(filters) # :doc:
-        ActiveSupport::ParameterFilter.new(filters)
-      end
-
-      KV_RE   = "[^&;=]+"
-      PAIR_RE = %r{(#{KV_RE})=(#{KV_RE})}
-      def filtered_query_string # :doc:
-        query_string.gsub(PAIR_RE) do |_|
-          parameter_filter.filter($1 => $2).first.join("=")
+        def parameter_filter # :doc:
+          parameter_filter_for fetch_header('action_dispatch.parameter_filter') {
+            return NULL_PARAM_FILTER
+          }
         end
-      end
+
+        def env_filter # :doc:
+          user_key = fetch_header('action_dispatch.parameter_filter') do
+            return NULL_ENV_FILTER
+          end
+          parameter_filter_for(Array(user_key) + ENV_MATCH)
+        end
+
+        def parameter_filter_for(filters) # :doc:
+          ActiveSupport::ParameterFilter.new(filters)
+        end
+
+        KV_RE   = '[^&;=]+'
+        PAIR_RE = /(#{KV_RE})=(#{KV_RE})/.freeze
+        def filtered_query_string # :doc:
+          query_string.gsub(PAIR_RE) do |_|
+            parameter_filter.filter(Regexp.last_match(1) => Regexp.last_match(2)).first.join('=')
+          end
+        end
+
     end
+
   end
+
 end

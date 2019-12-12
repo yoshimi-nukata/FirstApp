@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require "action_view"
-require "action_controller/log_subscriber"
-require "action_controller/metal/params_wrapper"
+require 'action_view'
+require 'action_controller/log_subscriber'
+require 'action_controller/metal/params_wrapper'
 
 module ActionController
+
   # Action Controllers are the core of a web request in \Rails. They are made up of one or more actions that are executed
   # on request and then either it renders a template or redirects to another action. An action is defined as a public method
   # on the controller, which will automatically be made accessible to the web-server through \Rails Routes.
@@ -164,6 +165,7 @@ module ActionController
   #   end
   #
   class Base < Metal
+
     abstract!
 
     # We document the request and response methods here because albeit they are
@@ -248,7 +250,7 @@ module ActionController
       # Params wrapper should come before instrumentation so they are
       # properly showed in logs
       ParamsWrapper
-    ]
+    ].freeze
 
     MODULES.each do |mod|
       include mod
@@ -256,10 +258,10 @@ module ActionController
     setup_renderer!
 
     # Define some internal variables that should not be propagated to the view.
-    PROTECTED_IVARS = AbstractController::Rendering::DEFAULT_PROTECTED_INSTANCE_VARIABLES + %i(
+    PROTECTED_IVARS = AbstractController::Rendering::DEFAULT_PROTECTED_INSTANCE_VARIABLES + %i[
       @_params @_response @_request @_config @_url_options @_action_has_layout @_view_context_class
       @_view_renderer @_lookup_context @_routes @_view_runtime @_db_runtime @_helper_proxy
-    )
+    ]
 
     def _protected_ivars # :nodoc:
       PROTECTED_IVARS
@@ -267,5 +269,7 @@ module ActionController
 
     ActiveSupport.run_load_hooks(:action_controller_base, self)
     ActiveSupport.run_load_hooks(:action_controller, self)
+
   end
+
 end

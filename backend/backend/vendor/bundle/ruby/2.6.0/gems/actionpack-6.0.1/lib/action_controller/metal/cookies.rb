@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController #:nodoc:
+
   module Cookies
+
     extend ActiveSupport::Concern
 
     included do
@@ -9,8 +11,11 @@ module ActionController #:nodoc:
     end
 
     private
+
       def cookies
         request.cookie_jar
       end
+
   end
+
 end

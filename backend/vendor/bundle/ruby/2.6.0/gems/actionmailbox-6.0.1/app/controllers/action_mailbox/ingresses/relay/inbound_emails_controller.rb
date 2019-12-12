@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # Ingests inbound emails relayed from an SMTP server.
   #
   # Authenticates requests using HTTP basic access authentication. The username is always +actionmailbox+, and the
@@ -49,6 +50,7 @@ module ActionMailbox
   #    - Postfix (<tt>bin/rails action_mailbox:ingress:postfix)
   #    - Qmail (<tt>bin/rails action_mailbox:ingress:qmail)
   class Ingresses::Relay::InboundEmailsController < ActionMailbox::BaseController
+
     before_action :authenticate_by_password, :require_valid_rfc822_message
 
     def create
@@ -56,10 +58,11 @@ module ActionMailbox
     end
 
     private
+
       def require_valid_rfc822_message
-        unless request.content_type == "message/rfc822"
-          head :unsupported_media_type
-        end
+        head :unsupported_media_type unless request.content_type == 'message/rfc822'
       end
+
   end
+
 end

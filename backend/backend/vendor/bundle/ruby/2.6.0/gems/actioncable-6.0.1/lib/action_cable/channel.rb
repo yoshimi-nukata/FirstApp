@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Channel
+
     extend ActiveSupport::Autoload
 
     eager_autoload do
@@ -13,5 +15,7 @@ module ActionCable
       autoload :Streams
       autoload :TestCase
     end
+
   end
+
 end

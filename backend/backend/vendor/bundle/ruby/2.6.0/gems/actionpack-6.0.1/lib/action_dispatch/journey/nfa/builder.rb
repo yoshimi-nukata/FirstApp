@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
-require "action_dispatch/journey/nfa/transition_table"
-require "action_dispatch/journey/gtg/transition_table"
+require 'action_dispatch/journey/nfa/transition_table'
+require 'action_dispatch/journey/gtg/transition_table'
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     module NFA # :nodoc:
+
       class Visitor < Visitors::Visitor # :nodoc:
+
         def initialize(tt)
           @tt = tt
           @i  = -1
@@ -60,9 +64,11 @@ module ActionDispatch
 
           [from_i, to_i]
         end
+
       end
 
       class Builder # :nodoc:
+
         def initialize(ast)
           @ast = ast
         end
@@ -72,7 +78,11 @@ module ActionDispatch
           Visitor.new(tt).accept(@ast)
           tt
         end
+
       end
+
     end
+
   end
+
 end

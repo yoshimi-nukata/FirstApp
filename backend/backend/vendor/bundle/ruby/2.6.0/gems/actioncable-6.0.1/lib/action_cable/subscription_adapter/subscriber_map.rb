@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module SubscriptionAdapter
+
     class SubscriberMap
+
       def initialize
         @subscribers = Hash.new { |h, k| h[k] = [] }
         @sync = Mutex.new
@@ -35,7 +38,8 @@ module ActionCable
 
       def broadcast(channel, message)
         list = @sync.synchronize do
-          return if !@subscribers.key?(channel)
+          return unless @subscribers.key?(channel)
+
           @subscribers[channel].dup
         end
 
@@ -44,8 +48,8 @@ module ActionCable
         end
       end
 
-      def add_channel(channel, on_success)
-        on_success.call if on_success
+      def add_channel(_channel, on_success)
+        on_success&.call
       end
 
       def remove_channel(channel)
@@ -54,6 +58,9 @@ module ActionCable
       def invoke_callback(callback, message)
         callback.call message
       end
+
     end
+
   end
+
 end

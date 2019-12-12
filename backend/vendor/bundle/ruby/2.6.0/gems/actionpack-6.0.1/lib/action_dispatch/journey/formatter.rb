@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
-require "action_controller/metal/exceptions"
+require 'action_controller/metal/exceptions'
 
 module ActionDispatch
+
   # :stopdoc:
   module Journey
+
     # The Formatter class is used for formatting URLs. For example, parameters
     # passed to +url_for+ in Rails will eventually call Formatter#generate.
     class Formatter
+
       attr_reader :routes
 
       def initialize(routes)
@@ -29,6 +32,7 @@ module ActionDispatch
 
           missing_keys = missing_keys(route, parameterized_parts)
           next if missing_keys && !missing_keys.empty?
+
           params = options.dup.delete_if do |key, _|
             parameterized_parts.key?(key) || route.defaults.key?(key)
           end
@@ -50,7 +54,7 @@ module ActionDispatch
         unmatched_keys = (missing_keys || []) & constraints.keys
         missing_keys = (missing_keys || []) - unmatched_keys
 
-        message = +"No route matches #{Hash[constraints.sort_by { |k, v| k.to_s }].inspect}"
+        message = +"No route matches #{Hash[constraints.sort_by { |k, _v| k.to_s }].inspect}"
         message << ", missing required keys: #{missing_keys.sort.inspect}" if missing_keys && !missing_keys.empty?
         message << ", possible unmatched constraints: #{unmatched_keys.sort.inspect}" if unmatched_keys && !unmatched_keys.empty?
 
@@ -66,9 +70,9 @@ module ActionDispatch
         def extract_parameterized_parts(route, options, recall, parameterize = nil)
           parameterized_parts = recall.merge(options)
 
-          keys_to_keep = route.parts.reverse_each.drop_while { |part|
+          keys_to_keep = route.parts.reverse_each.drop_while do |part|
             !(options.key?(part) || route.scope_options.key?(part)) || (options[part] || recall[part]).nil?
-          } | route.required_parts
+          end | route.required_parts
 
           parameterized_parts.delete_if do |bad_key, _|
             !keys_to_keep.include?(bad_key)
@@ -127,19 +131,21 @@ module ActionDispatch
         end
 
         module RegexCaseComparator
-          DEFAULT_INPUT = /[-_.a-zA-Z0-9]+\/[-_.a-zA-Z0-9]+/
-          DEFAULT_REGEX = /\A#{DEFAULT_INPUT}\Z/
+
+          DEFAULT_INPUT = %r{[-_.a-zA-Z0-9]+/[-_.a-zA-Z0-9]+}.freeze
+          DEFAULT_REGEX = /\A#{DEFAULT_INPUT}\Z/.freeze
 
           def self.===(regex)
             DEFAULT_INPUT == regex
           end
+
         end
 
         # Returns an array populated with missing keys if any are present.
         def missing_keys(route, parts)
           missing_keys = nil
           tests = route.path.requirements
-          route.required_parts.each { |key|
+          route.required_parts.each do |key|
             case tests[key]
             when nil
               unless parts[key]
@@ -157,16 +163,16 @@ module ActionDispatch
                 missing_keys << key
               end
             end
-          }
+          end
           missing_keys
         end
 
         def possibles(cache, options, depth = 0)
-          cache.fetch(:___routes) { [] } + options.find_all { |pair|
+          cache.fetch(:___routes) { [] } + options.find_all do |pair|
             cache.key?(pair)
-          }.flat_map { |pair|
+          end.flat_map do |pair|
             possibles(cache[pair], options, depth + 1)
-          }
+          end
         end
 
         def build_cache
@@ -183,7 +189,10 @@ module ActionDispatch
         def cache
           @cache ||= build_cache
         end
+
     end
+
   end
   # :startdoc:
+
 end

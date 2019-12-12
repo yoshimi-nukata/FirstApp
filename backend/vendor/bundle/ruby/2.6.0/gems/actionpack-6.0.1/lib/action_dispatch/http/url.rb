@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/module/attribute_accessors"
+require 'active_support/core_ext/module/attribute_accessors'
 
 module ActionDispatch
+
   module Http
+
     module URL
-      IP_HOST_REGEXP  = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
-      HOST_REGEXP     = /(^[^:]+:\/\/)?(\[[^\]]+\]|[^:]+)(?::(\d+$))?/
-      PROTOCOL_REGEXP = /^([^:]+)(:)?(\/\/)?$/
+
+      IP_HOST_REGEXP  = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.freeze
+      HOST_REGEXP     = %r{(^[^:]+://)?(\[[^\]]+\]|[^:]+)(?::(\d+$))?}.freeze
+      PROTOCOL_REGEXP = %r{^([^:]+)(:)?(//)?$}.freeze
 
       mattr_accessor :tld_length, default: 1
 
       class << self
+
         # Returns the domain part of a host given the domain level.
         #
         #    # Top-level domain example
@@ -43,7 +47,7 @@ module ActionDispatch
         #    # Second-level domain example
         #    extract_subdomain('dev.www.example.co.uk', 2) # => "dev.www"
         def extract_subdomain(host, tld_length)
-          extract_subdomains(host, tld_length).join(".")
+          extract_subdomains(host, tld_length).join('.')
         end
 
         def url_for(options)
@@ -59,15 +63,13 @@ module ActionDispatch
           protocol = options[:protocol]
           port     = options[:port]
 
-          unless host
-            raise ArgumentError, "Missing host to link to! Please provide the :host parameter, set default_url_options[:host], or set :only_path to true"
-          end
+          raise ArgumentError, 'Missing host to link to! Please provide the :host parameter, set default_url_options[:host], or set :only_path to true' unless host
 
           build_host_url(host, port, protocol, options, path_for(options))
         end
 
         def path_for(options)
-          path = options[:script_name].to_s.chomp("/")
+          path = options[:script_name].to_s.chomp('/')
           path << options[:path] if options.key?(:path)
 
           add_trailing_slash(path) if options[:trailing_slash]
@@ -87,25 +89,23 @@ module ActionDispatch
           end
 
           def add_anchor(path, anchor)
-            if anchor
-              path << "##{Journey::Router::Utils.escape_fragment(anchor.to_param)}"
-            end
+            path << "##{Journey::Router::Utils.escape_fragment(anchor.to_param)}" if anchor
           end
 
           def extract_domain_from(host, tld_length)
-            host.split(".").last(1 + tld_length).join(".")
+            host.split('.').last(1 + tld_length).join('.')
           end
 
           def extract_subdomains_from(host, tld_length)
-            parts = host.split(".")
+            parts = host.split('.')
             parts[0..-(tld_length + 2)]
           end
 
           def add_trailing_slash(path)
-            if path.include?("?")
+            if path.include?('?')
               path.sub!(/\?/, '/\&')
-            elsif !path.include?(".")
-              path.sub!(/[^\/]\z|\A\z/, '\&/')
+            elsif !path.include?('.')
+              path.sub!(%r{[^/]\z|\A\z}, '\&/')
             end
           end
 
@@ -121,14 +121,12 @@ module ActionDispatch
 
             result = protocol.dup
 
-            if options[:user] && options[:password]
-              result << "#{Rack::Utils.escape(options[:user])}:#{Rack::Utils.escape(options[:password])}@"
-            end
+            result << "#{Rack::Utils.escape(options[:user])}:#{Rack::Utils.escape(options[:password])}@" if options[:user] && options[:password]
 
             result << host
-            normalize_port(port, protocol) { |normalized_port|
+            normalize_port(port, protocol) do |normalized_port|
               result << ":#{normalized_port}"
-            }
+            end
 
             result.concat path
           end
@@ -140,11 +138,11 @@ module ActionDispatch
           def normalize_protocol(protocol)
             case protocol
             when nil
-              "http://"
-            when false, "//"
-              "//"
+              'http://'
+            when false, '//'
+              '//'
             when PROTOCOL_REGEXP
-              "#{$1}://"
+              "#{Regexp.last_match(1)}://"
             else
               raise ArgumentError, "Invalid :protocol option: #{protocol.inspect}"
             end
@@ -157,15 +155,15 @@ module ActionDispatch
             subdomain  = options.fetch :subdomain, true
             domain     = options[:domain]
 
-            host = +""
+            host = +''
             if subdomain == true
               return _host if domain.nil?
 
-              host << extract_subdomains_from(_host, tld_length).join(".")
+              host << extract_subdomains_from(_host, tld_length).join('.')
             elsif subdomain
               host << subdomain.to_param
             end
-            host << "." unless host.empty?
+            host << '.' unless host.empty?
             host << (domain || extract_domain_from(_host, tld_length))
             host
           end
@@ -174,13 +172,14 @@ module ActionDispatch
             return unless port
 
             case protocol
-            when "//" then yield port
-            when "https://"
+            when '//' then yield port
+            when 'https://'
               yield port unless port.to_i == 443
             else
               yield port unless port.to_i == 80
             end
           end
+
       end
 
       def initialize
@@ -205,7 +204,7 @@ module ActionDispatch
       #   req = ActionDispatch::Request.new 'HTTP_HOST' => 'example.com', 'HTTPS' => 'on'
       #   req.protocol # => "https://"
       def protocol
-        @protocol ||= ssl? ? "https://" : "http://"
+        @protocol ||= ssl? ? 'https://' : 'http://'
       end
 
       # Returns the \host and port for this request, such as "example.com:8080".
@@ -222,7 +221,7 @@ module ActionDispatch
         if forwarded = x_forwarded_host.presence
           forwarded.split(/,\s?/).last
         else
-          get_header("HTTP_HOST") || "#{server_name || server_addr}:#{get_header('SERVER_PORT')}"
+          get_header('HTTP_HOST') || "#{server_name || server_addr}:#{get_header('SERVER_PORT')}"
         end
       end
 
@@ -231,7 +230,7 @@ module ActionDispatch
       #   req = ActionDispatch::Request.new 'HTTP_HOST' => 'example.com:8080'
       #   req.host # => "example.com"
       def host
-        raw_host_with_port.sub(/:\d+$/, "")
+        raw_host_with_port.sub(/:\d+$/, '')
       end
 
       # Returns a \host:\port string for this request, such as "example.com" or
@@ -260,7 +259,7 @@ module ActionDispatch
       def port
         @port ||= begin
           if raw_host_with_port =~ /:(\d+)$/
-            $1.to_i
+            Regexp.last_match(1).to_i
           else
             standard_port
           end
@@ -273,7 +272,7 @@ module ActionDispatch
       #   req.standard_port # => 80
       def standard_port
         case protocol
-        when "https://" then 443
+        when 'https://' then 443
         else 80
         end
       end
@@ -310,7 +309,7 @@ module ActionDispatch
       #   req = ActionDispatch::Request.new 'HTTP_HOST' => 'example.com:8080'
       #   req.port_string # => ":8080"
       def port_string
-        standard_port? ? "" : ":#{port}"
+        standard_port? ? '' : ":#{port}"
       end
 
       # Returns the requested port, such as 8080, based on SERVER_PORT
@@ -321,7 +320,7 @@ module ActionDispatch
       #   req = ActionDispatch::Request.new 'SERVER_PORT' => '8080'
       #   req.server_port # => 8080
       def server_port
-        get_header("SERVER_PORT").to_i
+        get_header('SERVER_PORT').to_i
       end
 
       # Returns the \domain part of a \host, such as "rubyonrails.org" in "www.rubyonrails.org". You can specify
@@ -345,6 +344,9 @@ module ActionDispatch
       def subdomain(tld_length = @@tld_length)
         ActionDispatch::Http::URL.extract_subdomain(host, tld_length)
       end
+
     end
+
   end
+
 end

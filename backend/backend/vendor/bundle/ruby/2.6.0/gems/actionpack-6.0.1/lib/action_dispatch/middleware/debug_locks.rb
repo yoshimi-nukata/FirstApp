@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionDispatch
+
   # This middleware can be used to diagnose deadlocks in the autoload interlock.
   #
   # To use it, insert it near the top of the middleware stack, using
@@ -23,7 +24,8 @@ module ActionDispatch
   # This middleware exposes operational details of the server, with no access
   # control. It should only be enabled when in use, and removed thereafter.
   class DebugLocks
-    def initialize(app, path = "/rails/locks")
+
+    def initialize(app, path = '/rails/locks')
       @app = app
       @path = path
     end
@@ -32,17 +34,16 @@ module ActionDispatch
       req = ActionDispatch::Request.new env
 
       if req.get?
-        path = req.path_info.chomp("/")
-        if path == @path
-          return render_details(req)
-        end
+        path = req.path_info.chomp('/')
+        return render_details(req) if path == @path
       end
 
       @app.call(env)
     end
 
     private
-      def render_details(req)
+
+      def render_details(_req)
         threads = ActiveSupport::Dependencies.interlock.raw_state do |raw_threads|
           # The Interlock itself comes to a complete halt as long as this block
           # is executing. That gives us a more consistent picture of everything,
@@ -63,17 +64,15 @@ module ActionDispatch
 
         str = threads.map do |thread, info|
           if info[:exclusive]
-            lock_state = +"Exclusive"
+            lock_state = +'Exclusive'
           elsif info[:sharing] > 0
-            lock_state = +"Sharing"
+            lock_state = +'Sharing'
             lock_state << " x#{info[:sharing]}" if info[:sharing] > 1
           else
-            lock_state = +"No lock"
+            lock_state = +'No lock'
           end
 
-          if info[:waiting]
-            lock_state << " (yielded share)"
-          end
+          lock_state << ' (yielded share)' if info[:waiting]
 
           msg = +"Thread #{info[:index]} [0x#{thread.__id__.to_s(16)} #{thread.status || 'dead'}]  #{lock_state}\n"
 
@@ -83,7 +82,7 @@ module ActionDispatch
             msg << "\n"
 
             if info[:compatible]
-              compat = info[:compatible].map { |c| c == false ? "share" : c.to_s.inspect }
+              compat = info[:compatible].map { |c| c == false ? 'share' : c.to_s.inspect }
               msg << "  may be pre-empted for: #{compat.join(', ')}\n"
             end
 
@@ -97,7 +96,7 @@ module ActionDispatch
           msg << "\n#{info[:backtrace].join("\n")}\n" if info[:backtrace]
         end.join("\n\n---\n\n\n")
 
-        [200, { "Content-Type" => "text/plain", "Content-Length" => str.size }, [str]]
+        [200, { 'Content-Type' => 'text/plain', 'Content-Length' => str.size }, [str]]
       end
 
       def blocked_by?(victim, blocker, all_threads)
@@ -115,10 +114,11 @@ module ActionDispatch
           blocker[:exclusive]
         when :stop_exclusive
           blocker[:exclusive] ||
-            victim[:compatible] &&
-            victim[:compatible].include?(blocker[:purpose]) &&
-            all_threads.all? { |other| !other[:compatible] || blocker.equal?(other) || other[:compatible].include?(blocker[:purpose]) }
+            victim[:compatible]&.include?(blocker[:purpose]) &&
+              all_threads.all? { |other| !other[:compatible] || blocker.equal?(other) || other[:compatible].include?(blocker[:purpose]) }
         end
       end
+
   end
+
 end

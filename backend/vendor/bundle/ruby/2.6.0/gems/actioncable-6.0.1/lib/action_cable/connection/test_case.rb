@@ -1,36 +1,43 @@
 # frozen_string_literal: true
 
-require "active_support"
-require "active_support/test_case"
-require "active_support/core_ext/hash/indifferent_access"
-require "action_dispatch"
-require "action_dispatch/http/headers"
-require "action_dispatch/testing/test_request"
+require 'active_support'
+require 'active_support/test_case'
+require 'active_support/core_ext/hash/indifferent_access'
+require 'action_dispatch'
+require 'action_dispatch/http/headers'
+require 'action_dispatch/testing/test_request'
 
 module ActionCable
+
   module Connection
+
     class NonInferrableConnectionError < ::StandardError
+
       def initialize(name)
-        super "Unable to determine the connection to test from #{name}. " +
-          "You'll need to specify it using `tests YourConnection` in your " +
-          "test case definition."
+        super "Unable to determine the connection to test from #{name}. " \
+          "You'll need to specify it using `tests YourConnection` in your " \
+          'test case definition.'
       end
+
     end
 
     module Assertions
+
       # Asserts that the connection is rejected (via +reject_unauthorized_connection+).
       #
       #   # Asserts that connection without user_id fails
       #   assert_reject_connection { connect params: { user_id: '' } }
       def assert_reject_connection(&block)
-        assert_raises(Authorization::UnauthorizedError, "Expected to reject connection but no rejection was made", &block)
+        assert_raises(Authorization::UnauthorizedError, 'Expected to reject connection but no rejection was made', &block)
       end
+
     end
 
     # We don't want to use the whole "encryption stack" for connection
     # unit-tests, but we want to make sure that users test against the correct types
     # of cookies (i.e. signed or encrypted or plain)
     class TestCookieJar < ActiveSupport::HashWithIndifferentAccess
+
       def signed
         self[:signed] ||= {}.with_indifferent_access
       end
@@ -38,13 +45,17 @@ module ActionCable
       def encrypted
         self[:encrypted] ||= {}.with_indifferent_access
       end
+
     end
 
     class TestRequest < ActionDispatch::TestRequest
+
       attr_accessor :session, :cookie_jar
+
     end
 
     module TestConnection
+
       attr_reader :logger, :request
 
       def initialize(request)
@@ -54,6 +65,7 @@ module ActionCable
         @request = request
         @env = request.env
       end
+
     end
 
     # Unit test Action Cable connections.
@@ -127,10 +139,12 @@ module ActionCable
     #   end
     #
     class TestCase < ActiveSupport::TestCase
+
       module Behavior
+
         extend ActiveSupport::Concern
 
-        DEFAULT_PATH = "/cable"
+        DEFAULT_PATH = '/cable'
 
         include ActiveSupport::Testing::ConstantLookup
         include Assertions
@@ -144,6 +158,7 @@ module ActionCable
         end
 
         module ClassMethods
+
           def tests(connection)
             case connection
             when String, Symbol
@@ -151,12 +166,12 @@ module ActionCable
             when Module
               self._connection_class = connection
             else
-              raise NonInferrableConnectionError.new(connection)
+              raise NonInferrableConnectionError, connection
             end
           end
 
           def connection_class
-            if connection = self._connection_class
+            if connection = _connection_class
               connection
             else
               tests determine_default_connection(name)
@@ -167,9 +182,11 @@ module ActionCable
             connection = determine_constant_from_test_name(name) do |constant|
               Class === constant && constant < ActionCable::Connection::Base
             end
-            raise NonInferrableConnectionError.new(name) if connection.nil?
+            raise NonInferrableConnectionError, name if connection.nil?
+
             connection
           end
+
         end
 
         # Performs connection attempt to exert #connect on the connection under test.
@@ -194,7 +211,7 @@ module ActionCable
 
         # Exert #disconnect on the connection under test.
         def disconnect
-          raise "Must be connected!" if connection.nil?
+          raise 'Must be connected!' if connection.nil?
 
           connection.disconnect if connection.respond_to?(:disconnect)
           @connection = nil
@@ -205,6 +222,7 @@ module ActionCable
         end
 
         private
+
           def build_test_request(path, params: nil, headers: {}, session: {}, env: {})
             wrapped_headers = ActionDispatch::Http::Headers.from_hash(headers)
 
@@ -213,22 +231,24 @@ module ActionCable
             query_string = params.nil? ? uri.query : params.to_query
 
             request_env = {
-              "QUERY_STRING" => query_string,
-              "PATH_INFO" => uri.path
+              'QUERY_STRING' => query_string,
+              'PATH_INFO' => uri.path
             }.merge(env)
 
-            if wrapped_headers.present?
-              ActionDispatch::Http::Headers.from_hash(request_env).merge!(wrapped_headers)
-            end
+            ActionDispatch::Http::Headers.from_hash(request_env).merge!(wrapped_headers) if wrapped_headers.present?
 
             TestRequest.create(request_env).tap do |request|
               request.session = session.with_indifferent_access
               request.cookie_jar = cookies
             end
           end
+
       end
 
       include Behavior
+
     end
+
   end
+
 end

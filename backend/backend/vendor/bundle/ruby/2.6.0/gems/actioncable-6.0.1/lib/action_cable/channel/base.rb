@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "set"
-require "active_support/rescuable"
+require 'set'
+require 'active_support/rescuable'
 
 module ActionCable
+
   module Channel
+
     # The channel provides the basic structure of grouping behavior into logical units when communicating over the WebSocket connection.
     # You can think of a channel like a form of controller, but one that's capable of pushing content to the subscriber in addition to simply
     # responding to the subscriber's direct requests.
@@ -95,6 +97,7 @@ module ActionCable
     # client-side, the <tt>Channel#rejected</tt> callback will get invoked when
     # the server rejects the subscription request.
     class Base
+
       include Callbacks
       include PeriodicTimers
       include Streams
@@ -106,6 +109,7 @@ module ActionCable
       delegate :logger, to: :connection
 
       class << self
+
         # A list of method names that should be considered actions. This
         # includes all public instance methods on a channel, less
         # any internal methods (defined on Base), adding back in
@@ -127,6 +131,7 @@ module ActionCable
         end
 
         private
+
           # action_methods are cached and there is sometimes need to refresh
           # them. ::clear_action_methods! allows you to do that, so next time
           # you run action_methods, they will be recalculated.
@@ -139,6 +144,7 @@ module ActionCable
             super
             clear_action_methods!
           end
+
       end
 
       def initialize(connection, identifier, params = {})
@@ -166,7 +172,7 @@ module ActionCable
 
         if processable_action?(action)
           payload = { channel_class: self.class.name, action: action, data: data }
-          ActiveSupport::Notifications.instrument("perform_action.action_cable", payload) do
+          ActiveSupport::Notifications.instrument('perform_action.action_cable', payload) do
             dispatch_action(action, data)
           end
         else
@@ -194,6 +200,7 @@ module ActionCable
       end
 
       private
+
         # Called once a consumer has become a subscriber of the channel. Usually the place to setup any streams
         # you want this channel to be sending to the subscriber.
         def subscribed # :doc:
@@ -214,13 +221,14 @@ module ActionCable
           logger.debug(status)
 
           payload = { channel_class: self.class.name, data: data, via: via }
-          ActiveSupport::Notifications.instrument("transmit.action_cable", payload) do
+          ActiveSupport::Notifications.instrument('transmit.action_cable', payload) do
             connection.transmit identifier: @identifier, message: data
           end
         end
 
         def ensure_confirmation_sent # :doc:
           return if subscription_rejected?
+
           @defer_subscription_confirmation_counter.decrement
           transmit_subscription_confirmation unless defer_subscription_confirmation?
         end
@@ -254,7 +262,7 @@ module ActionCable
         end
 
         def extract_action(data)
-          (data["action"].presence || :receive).to_sym
+          (data['action'].presence || :receive).to_sym
         end
 
         def processable_action?(action)
@@ -269,13 +277,13 @@ module ActionCable
           else
             public_send action
           end
-        rescue Exception => exception
-          rescue_with_handler(exception) || raise
+        rescue Exception => e
+          rescue_with_handler(e) || raise
         end
 
         def action_signature(action, data)
           (+"#{self.class.name}##{action}").tap do |signature|
-            if (arguments = data.except("action")).any?
+            if (arguments = data.except('action')).any?
               signature << "(#{arguments.inspect})"
             end
           end
@@ -285,7 +293,7 @@ module ActionCable
           unless subscription_confirmation_sent?
             logger.info "#{self.class.name} is transmitting the subscription confirmation"
 
-            ActiveSupport::Notifications.instrument("transmit_subscription_confirmation.action_cable", channel_class: self.class.name) do
+            ActiveSupport::Notifications.instrument('transmit_subscription_confirmation.action_cable', channel_class: self.class.name) do
               connection.transmit identifier: @identifier, type: ActionCable::INTERNAL[:message_types][:confirmation]
               @subscription_confirmation_sent = true
             end
@@ -300,12 +308,15 @@ module ActionCable
         def transmit_subscription_rejection
           logger.info "#{self.class.name} is transmitting the subscription rejection"
 
-          ActiveSupport::Notifications.instrument("transmit_subscription_rejection.action_cable", channel_class: self.class.name) do
+          ActiveSupport::Notifications.instrument('transmit_subscription_rejection.action_cable', channel_class: self.class.name) do
             connection.transmit identifier: @identifier, type: ActionCable::INTERNAL[:message_types][:rejection]
           end
         end
+
     end
+
   end
+
 end
 
 ActiveSupport.run_load_hooks(:action_cable_channel, ActionCable::Channel::Base)

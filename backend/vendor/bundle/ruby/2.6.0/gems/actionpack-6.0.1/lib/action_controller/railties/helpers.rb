@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 module ActionController
+
   module Railties
+
     module Helpers
+
       def inherited(klass)
         super
         return unless klass.respond_to?(:helpers_path=)
@@ -15,10 +18,11 @@ module ActionController
 
         klass.helpers_path = paths
 
-        if klass.superclass == ActionController::Base && ActionController::Base.include_all_helpers
-          klass.helper :all
-        end
+        klass.helper :all if klass.superclass == ActionController::Base && ActionController::Base.include_all_helpers
       end
+
     end
+
   end
+
 end

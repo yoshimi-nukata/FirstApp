@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module ActionController
+
   module Redirecting
+
     extend ActiveSupport::Concern
 
     include AbstractController::Logger
@@ -56,7 +58,7 @@ module ActionController
     # To terminate the execution of the function immediately after the +redirect_to+, use return.
     #   redirect_to post_url(@post) and return
     def redirect_to(options = {}, response_options = {})
-      raise ActionControllerError.new("Cannot redirect to nil!") unless options
+      raise ActionControllerError, 'Cannot redirect to nil!' unless options
       raise AbstractController::DoubleRenderError if response_body
 
       self.status        = _extract_redirect_to_status(options, response_options)
@@ -88,7 +90,7 @@ module ActionController
     # All other options that can be passed to <tt>redirect_to</tt> are accepted as
     # options and the behavior is identical.
     def redirect_back(fallback_location:, allow_other_host: true, **args)
-      referer = request.headers["Referer"]
+      referer = request.headers['Referer']
       redirect_to_referer = referer && (allow_other_host || _url_host_allowed?(referer))
       redirect_to redirect_to_referer ? referer : fallback_location, **args
     end
@@ -100,7 +102,7 @@ module ActionController
       # characters; and is terminated by a colon (":").
       # See https://tools.ietf.org/html/rfc3986#section-3.1
       # The protocol relative scheme starts with a double slash "//".
-      when /\A([a-z][a-z\d\-+\.]*:|\/\/).*/i
+      when %r{\A([a-z][a-z\d\-+\.]*:|//).*}i
         options
       when String
         request.protocol + request.host_with_port + options
@@ -114,6 +116,7 @@ module ActionController
     public :_compute_redirect_to_location
 
     private
+
       def _extract_redirect_to_status(options, response_options)
         if options.is_a?(Hash) && options.key?(:status)
           Rack::Utils.status_code(options.delete(:status))
@@ -129,5 +132,7 @@ module ActionController
       rescue ArgumentError, URI::Error
         false
       end
+
   end
+
 end

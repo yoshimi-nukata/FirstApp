@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module ActionMailbox
+
   # See +ActionMailbox::Base+ for how to specify routing.
   module Routing
+
     extend ActiveSupport::Concern
 
     included do
@@ -18,5 +20,7 @@ module ActionMailbox
         router.route(inbound_email)
       end
     end
+
   end
+
 end

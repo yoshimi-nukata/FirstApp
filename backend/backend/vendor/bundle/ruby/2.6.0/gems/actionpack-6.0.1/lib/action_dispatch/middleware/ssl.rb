@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionDispatch
+
   # This middleware is added to the stack when <tt>config.force_ssl = true</tt>, and is passed
   # the options set in +config.ssl_options+. It does three jobs to enforce secure HTTP
   # requests:
@@ -47,6 +48,7 @@ module ActionDispatch
   #    expire HSTS immediately. Setting <tt>hsts: false</tt> is a shortcut for
   #    <tt>hsts: { expires: 0 }</tt>.
   class SSL
+
     # :stopdoc:
 
     # Default to 1 year, the minimum for browser preload lists.
@@ -71,19 +73,21 @@ module ActionDispatch
       request = Request.new env
 
       if request.ssl?
-        @app.call(env).tap do |status, headers, body|
+        @app.call(env).tap do |_status, headers, _body|
           set_hsts_header! headers
           flag_cookies_as_secure! headers if @secure_cookies && !@exclude.call(request)
         end
       else
         return redirect_to_https request unless @exclude.call(request)
+
         @app.call(env)
       end
     end
 
     private
+
       def set_hsts_header!(headers)
-        headers["Strict-Transport-Security"] ||= @hsts_header
+        headers['Strict-Transport-Security'] ||= @hsts_header
       end
 
       def normalize_hsts_options(options)
@@ -103,30 +107,30 @@ module ActionDispatch
       # https://tools.ietf.org/html/rfc6797#section-6.1
       def build_hsts_header(hsts)
         value = +"max-age=#{hsts[:expires].to_i}"
-        value << "; includeSubDomains" if hsts[:subdomains]
-        value << "; preload" if hsts[:preload]
+        value << '; includeSubDomains' if hsts[:subdomains]
+        value << '; preload' if hsts[:preload]
         value
       end
 
       def flag_cookies_as_secure!(headers)
-        if cookies = headers["Set-Cookie"]
+        if cookies = headers['Set-Cookie']
           cookies = cookies.split("\n")
 
-          headers["Set-Cookie"] = cookies.map { |cookie|
+          headers['Set-Cookie'] = cookies.map do |cookie|
             if !/;\s*secure\s*(;|$)/i.match?(cookie)
               "#{cookie}; secure"
             else
               cookie
             end
-          }.join("\n")
+          end.join("\n")
         end
       end
 
       def redirect_to_https(request)
-        [ @redirect.fetch(:status, redirection_status(request)),
-          { "Content-Type" => "text/html",
-            "Location" => https_location_for(request) },
-          @redirect.fetch(:body, []) ]
+        [@redirect.fetch(:status, redirection_status(request)),
+         { 'Content-Type' => 'text/html',
+           'Location' => https_location_for(request) },
+         @redirect.fetch(:body, [])]
       end
 
       def redirection_status(request)
@@ -146,5 +150,7 @@ module ActionDispatch
         location << request.fullpath
         location
       end
+
   end
+
 end

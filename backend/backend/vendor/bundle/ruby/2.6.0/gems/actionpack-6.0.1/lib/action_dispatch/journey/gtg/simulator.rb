@@ -1,19 +1,25 @@
 # frozen_string_literal: true
 
-require "strscan"
+require 'strscan'
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     module GTG # :nodoc:
+
       class MatchData # :nodoc:
+
         attr_reader :memos
 
         def initialize(memos)
           @memos = memos
         end
+
       end
 
       class Simulator # :nodoc:
+
         attr_reader :tt
 
         def initialize(transition_table)
@@ -23,19 +29,23 @@ module ActionDispatch
         def memos(string)
           input = StringScanner.new(string)
           state = [0]
-          while sym = input.scan(%r([/.?]|[^/.?]+))
+          while sym = input.scan(%r{[/.?]|[^/.?]+})
             state = tt.move(state, sym)
           end
 
-          acceptance_states = state.find_all { |s|
+          acceptance_states = state.find_all do |s|
             tt.accepting? s
-          }
+          end
 
           return yield if acceptance_states.empty?
 
           acceptance_states.flat_map { |x| tt.memo(x) }.compact
         end
+
       end
+
     end
+
   end
+
 end

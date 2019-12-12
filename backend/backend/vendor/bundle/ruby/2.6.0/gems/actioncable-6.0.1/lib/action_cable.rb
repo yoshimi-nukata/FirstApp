@@ -23,29 +23,30 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #++
 
-require "active_support"
-require "active_support/rails"
-require "action_cable/version"
+require 'active_support'
+require 'active_support/rails'
+require 'action_cable/version'
 
 module ActionCable
+
   extend ActiveSupport::Autoload
 
   INTERNAL = {
     message_types: {
-      welcome: "welcome",
-      disconnect: "disconnect",
-      ping: "ping",
-      confirmation: "confirm_subscription",
-      rejection: "reject_subscription"
+      welcome: 'welcome',
+      disconnect: 'disconnect',
+      ping: 'ping',
+      confirmation: 'confirm_subscription',
+      rejection: 'reject_subscription'
     },
     disconnect_reasons: {
-      unauthorized: "unauthorized",
-      invalid_request: "invalid_request",
-      server_restart: "server_restart"
+      unauthorized: 'unauthorized',
+      invalid_request: 'invalid_request',
+      server_restart: 'server_restart'
     },
-    default_mount_path: "/cable",
-    protocols: ["actioncable-v1-json", "actioncable-unsupported"].freeze
-  }
+    default_mount_path: '/cable',
+    protocols: ['actioncable-v1-json', 'actioncable-unsupported'].freeze
+  }.freeze
 
   # Singleton instance of the server
   module_function def server
@@ -59,4 +60,5 @@ module ActionCable
   autoload :SubscriptionAdapter
   autoload :TestHelper
   autoload :TestCase
+
 end

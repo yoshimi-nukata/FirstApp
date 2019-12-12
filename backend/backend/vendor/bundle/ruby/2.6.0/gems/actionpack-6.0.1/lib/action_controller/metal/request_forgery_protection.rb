@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require "rack/session/abstract/id"
-require "action_controller/metal/exceptions"
-require "active_support/security_utils"
+require 'rack/session/abstract/id'
+require 'action_controller/metal/exceptions'
+require 'active_support/security_utils'
 
 module ActionController #:nodoc:
+
   class InvalidAuthenticityToken < ActionControllerError #:nodoc:
   end
 
@@ -63,6 +64,7 @@ module ActionController #:nodoc:
   # Learn more about CSRF attacks and securing your application in the
   # {Ruby on Rails Security Guide}[https://guides.rubyonrails.org/security.html].
   module RequestForgeryProtection
+
     extend ActiveSupport::Concern
 
     include AbstractController::Helpers
@@ -103,6 +105,7 @@ module ActionController #:nodoc:
     end
 
     module ClassMethods
+
       # Turn on request forgery protection. Bear in mind that GET and HEAD requests are not checked.
       #
       #   class ApplicationController < ActionController::Base
@@ -155,12 +158,15 @@ module ActionController #:nodoc:
         def protection_method_class(name)
           ActionController::RequestForgeryProtection::ProtectionMethods.const_get(name.to_s.classify)
         rescue NameError
-          raise ArgumentError, "Invalid request forgery protection method, use :null_session, :exception, or :reset_session"
+          raise ArgumentError, 'Invalid request forgery protection method, use :null_session, :exception, or :reset_session'
         end
+
     end
 
     module ProtectionMethods
+
       class NullSession
+
         def initialize(controller)
           @controller = controller
         end
@@ -177,6 +183,7 @@ module ActionController #:nodoc:
         private
 
           class NullSessionHash < Rack::Session::Abstract::SessionHash #:nodoc:
+
             def initialize(req)
               super(nil, req)
               @data = {}
@@ -184,21 +191,27 @@ module ActionController #:nodoc:
             end
 
             # no-op
-            def destroy; end
+            def destroy
+            end
 
             def exists?
               true
             end
+
           end
 
           class NullCookieJar < ActionDispatch::Cookies::CookieJar #:nodoc:
+
             def write(*)
               # nothing
             end
+
           end
+
       end
 
       class ResetSession
+
         def initialize(controller)
           @controller = controller
         end
@@ -206,9 +219,11 @@ module ActionController #:nodoc:
         def handle_unverified_request
           @controller.reset_session
         end
+
       end
 
       class Exception
+
         def initialize(controller)
           @controller = controller
         end
@@ -216,10 +231,13 @@ module ActionController #:nodoc:
         def handle_unverified_request
           raise ActionController::InvalidAuthenticityToken
         end
+
       end
+
     end
 
     private
+
       # The actual before_action that is used to verify the CSRF token.
       # Don't override this directly. Provide your own forgery protection
       # strategy instead. If you override, you'll disable same-origin
@@ -233,7 +251,7 @@ module ActionController #:nodoc:
       def verify_authenticity_token # :doc:
         mark_for_same_origin_verification!
 
-        if !verified_request?
+        unless verified_request?
           if logger && log_warning_on_csrf_failure
             if valid_request_origin?
               logger.warn "Can't verify CSRF token authenticity."
@@ -250,10 +268,10 @@ module ActionController #:nodoc:
       end
 
       #:nodoc:
-      CROSS_ORIGIN_JAVASCRIPT_WARNING = "Security warning: an embedded " \
-        "<script> tag on another site requested protected JavaScript. " \
+      CROSS_ORIGIN_JAVASCRIPT_WARNING = 'Security warning: an embedded ' \
+        '<script> tag on another site requested protected JavaScript. ' \
         "If you know what you're doing, go ahead and disable forgery " \
-        "protection on this action to permit cross-origin JavaScript embedding."
+        'protection on this action to permit cross-origin JavaScript embedding.'
       private_constant :CROSS_ORIGIN_JAVASCRIPT_WARNING
       # :startdoc:
 
@@ -262,9 +280,7 @@ module ActionController #:nodoc:
       # we aren't serving an unauthorized cross-origin response.
       def verify_same_origin_request # :doc:
         if marked_for_same_origin_verification? && non_xhr_javascript_response?
-          if logger && log_warning_on_csrf_failure
-            logger.warn CROSS_ORIGIN_JAVASCRIPT_WARNING
-          end
+          logger.warn CROSS_ORIGIN_JAVASCRIPT_WARNING if logger && log_warning_on_csrf_failure
           raise ActionController::InvalidCrossOriginRequest, CROSS_ORIGIN_JAVASCRIPT_WARNING
         end
       end
@@ -282,7 +298,7 @@ module ActionController #:nodoc:
 
       # Check for cross-origin JavaScript responses.
       def non_xhr_javascript_response? # :doc:
-        %r(\A(?:text|application)/javascript).match?(media_type) && !request.xhr?
+        %r{\A(?:text|application)/javascript}.match?(media_type) && !request.xhr?
       end
 
       AUTHENTICITY_TOKEN_LENGTH = 32
@@ -321,10 +337,10 @@ module ActionController #:nodoc:
         action, method = form_options.values_at(:action, :method)
 
         raw_token = if per_form_csrf_tokens && action && method
-          action_path = normalize_action_path(action)
-          per_form_csrf_token(session, action_path, method)
-        else
-          real_csrf_token(session)
+                      action_path = normalize_action_path(action)
+                      per_form_csrf_token(session, action_path, method)
+                    else
+                      real_csrf_token(session)
         end
 
         one_time_pad = SecureRandom.random_bytes(AUTHENTICITY_TOKEN_LENGTH)
@@ -337,9 +353,7 @@ module ActionController #:nodoc:
       # session token. Essentially the inverse of
       # +masked_authenticity_token+.
       def valid_authenticity_token?(session, encoded_masked_token) # :doc:
-        if encoded_masked_token.nil? || encoded_masked_token.empty? || !encoded_masked_token.is_a?(String)
-          return false
-        end
+        return false if encoded_masked_token.nil? || encoded_masked_token.empty? || !encoded_masked_token.is_a?(String)
 
         begin
           masked_token = Base64.strict_decode64(encoded_masked_token)
@@ -402,7 +416,7 @@ module ActionController #:nodoc:
         OpenSSL::HMAC.digest(
           OpenSSL::Digest::SHA256.new,
           real_csrf_token(session),
-          [action_path, method.downcase].join("#")
+          [action_path, method.downcase].join('#')
         )
       end
 
@@ -441,7 +455,8 @@ module ActionController #:nodoc:
       def valid_request_origin? # :doc:
         if forgery_protection_origin_check
           # We accept blank origin headers because some user agents don't send it.
-          raise InvalidAuthenticityToken, NULL_ORIGIN_MESSAGE if request.origin == "null"
+          raise InvalidAuthenticityToken, NULL_ORIGIN_MESSAGE if request.origin == 'null'
+
           request.origin.nil? || request.origin == request.base_url
         else
           true
@@ -450,7 +465,9 @@ module ActionController #:nodoc:
 
       def normalize_action_path(action_path) # :doc:
         uri = URI.parse(action_path)
-        uri.path.chomp("/")
+        uri.path.chomp('/')
       end
+
   end
+
 end

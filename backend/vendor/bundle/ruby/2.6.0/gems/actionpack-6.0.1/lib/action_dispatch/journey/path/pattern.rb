@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 module ActionDispatch
+
   module Journey # :nodoc:
+
     module Path # :nodoc:
+
       class Pattern # :nodoc:
+
         attr_reader :spec, :requirements, :anchored
 
         def self.from_string(string)
-          build(string, {}, "/.?", true)
+          build(string, {}, '/.?', true)
         end
 
         def self.build(path, requirements, separators, anchored)
@@ -63,12 +67,13 @@ module ActionDispatch
         end
 
         def optional_names
-          @optional_names ||= spec.find_all(&:group?).flat_map { |group|
+          @optional_names ||= spec.find_all(&:group?).flat_map do |group|
             group.find_all(&:symbol?)
-          }.map(&:name).uniq
+          end.map(&:name).uniq
         end
 
         class AnchoredRegexp < Journey::Visitors::Visitor # :nodoc:
+
           def initialize(separator, matchers)
             @separator = separator
             @matchers  = matchers
@@ -77,7 +82,7 @@ module ActionDispatch
           end
 
           def accept(node)
-            %r{\A#{visit node}\Z}
+            /\A#{visit node}\Z/
           end
 
           def visit_CAT(node)
@@ -100,31 +105,35 @@ module ActionDispatch
           def visit_LITERAL(node)
             Regexp.escape(node.left)
           end
-          alias :visit_DOT :visit_LITERAL
+          alias visit_DOT visit_LITERAL
 
           def visit_SLASH(node)
             node.left
           end
 
           def visit_STAR(node)
-            re = @matchers[node.left.to_sym] || ".+"
+            re = @matchers[node.left.to_sym] || '.+'
             "(#{re})"
           end
 
           def visit_OR(node)
             children = node.children.map { |n| visit n }
-            "(?:#{children.join(?|)})"
+            "(?:#{children.join('|')})"
           end
+
         end
 
         class UnanchoredRegexp < AnchoredRegexp # :nodoc:
+
           def accept(node)
             path = visit node
-            path == "/" ? %r{\A/} : %r{\A#{path}(?:\b|\Z|/)}
+            path == '/' ? %r{\A/} : %r{\A#{path}(?:\b|\Z|/)}
           end
+
         end
 
         class MatchData # :nodoc:
+
           attr_reader :names
 
           def initialize(names, offsets, match)
@@ -157,13 +166,15 @@ module ActionDispatch
           def to_s
             @match.to_s
           end
+
         end
 
         def match(other)
           return unless match = to_regexp.match(other)
+
           MatchData.new(names, offsets, match)
         end
-        alias :=~ :match
+        alias =~ match
 
         def source
           to_regexp.source
@@ -189,7 +200,7 @@ module ActionDispatch
 
               if @requirements.key?(node)
                 re = /#{Regexp.union(@requirements[node])}|/
-                @offsets.push((re.match("").length - 1) + @offsets.last)
+                @offsets.push((re.match('').length - 1) + @offsets.last)
               else
                 @offsets << @offsets.last
               end
@@ -197,7 +208,11 @@ module ActionDispatch
 
             @offsets
           end
+
       end
+
     end
+
   end
+
 end

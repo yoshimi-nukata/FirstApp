@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ActionController
+
   # \Caching is a cheap way of speeding up slow applications by keeping the result of
   # calculations, renderings, and database calls around for subsequent requests.
   #
@@ -22,6 +23,7 @@ module ActionController
   #   config.action_controller.cache_store = :mem_cache_store, Memcached::Rails.new('localhost:11211')
   #   config.action_controller.cache_store = MyOwnStore.new('parameter')
   module Caching
+
     extend ActiveSupport::Autoload
     extend ActiveSupport::Concern
 
@@ -40,7 +42,9 @@ module ActionController
       end
 
       def instrument_name
-        "action_controller"
+        'action_controller'
       end
+
   end
+
 end

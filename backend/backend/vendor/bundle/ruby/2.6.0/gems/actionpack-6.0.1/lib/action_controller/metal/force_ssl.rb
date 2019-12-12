@@ -1,21 +1,24 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/hash/except"
-require "active_support/core_ext/hash/slice"
+require 'active_support/core_ext/hash/except'
+require 'active_support/core_ext/hash/slice'
 
 module ActionController
+
   # This module is deprecated in favor of +config.force_ssl+ in your environment
   # config file. This will ensure all endpoints not explicitly marked otherwise
   # will have all communication served over HTTPS.
   module ForceSSL # :nodoc:
+
     extend ActiveSupport::Concern
     include AbstractController::Callbacks
 
-    ACTION_OPTIONS = [:only, :except, :if, :unless]
-    URL_OPTIONS = [:protocol, :host, :domain, :subdomain, :port, :path]
-    REDIRECT_OPTIONS = [:status, :flash, :alert, :notice]
+    ACTION_OPTIONS = [:only, :except, :if, :unless].freeze
+    URL_OPTIONS = [:protocol, :host, :domain, :subdomain, :port, :path].freeze
+    REDIRECT_OPTIONS = [:status, :flash, :alert, :notice].freeze
 
     module ClassMethods # :nodoc:
+
       def force_ssl(options = {})
         ActiveSupport::Deprecation.warn(<<-MESSAGE.squish)
           Controller-level `force_ssl` is deprecated and will be removed from
@@ -32,15 +35,16 @@ module ActionController
           force_ssl_redirect(redirect_options)
         end
       end
+
     end
 
     def force_ssl_redirect(host_or_options = nil)
       unless request.ssl?
         options = {
-          protocol: "https://",
+          protocol: 'https://',
           host: request.host,
           path: request.fullpath,
-          status: :moved_permanently,
+          status: :moved_permanently
         }
 
         if host_or_options.is_a?(Hash)
@@ -54,5 +58,7 @@ module ActionController
         redirect_to secure_url, options.slice(*REDIRECT_OPTIONS)
       end
     end
+
   end
+
 end

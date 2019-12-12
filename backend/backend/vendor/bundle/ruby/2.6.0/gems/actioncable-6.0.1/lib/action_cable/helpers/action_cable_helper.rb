@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 module ActionCable
+
   module Helpers
+
     module ActionCableHelper
+
       # Returns an "action-cable-url" meta tag with the value of the URL specified in your
       # configuration. Ensure this is above your JavaScript tag:
       #
@@ -31,12 +34,15 @@ module ActionCable
       #   => <meta name="action-cable-url" content="ws://actioncable.com" />
       #
       def action_cable_meta_tag
-        tag "meta", name: "action-cable-url", content: (
+        tag 'meta', name: 'action-cable-url', content: (
           ActionCable.server.config.url ||
           ActionCable.server.config.mount_path ||
-          raise("No Action Cable URL configured -- please configure this at config.action_cable.url")
+          raise('No Action Cable URL configured -- please configure this at config.action_cable.url')
         )
       end
+
     end
+
   end
+
 end

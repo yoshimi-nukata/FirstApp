@@ -1,24 +1,29 @@
 # frozen_string_literal: true
 
-require "active_support"
-require "active_support/test_case"
-require "active_support/core_ext/hash/indifferent_access"
-require "json"
+require 'active_support'
+require 'active_support/test_case'
+require 'active_support/core_ext/hash/indifferent_access'
+require 'json'
 
 module ActionCable
+
   module Channel
+
     class NonInferrableChannelError < ::StandardError
+
       def initialize(name)
-        super "Unable to determine the channel to test from #{name}. " +
-          "You'll need to specify it using `tests YourChannel` in your " +
-          "test case definition."
+        super "Unable to determine the channel to test from #{name}. " \
+          "You'll need to specify it using `tests YourChannel` in your " \
+          'test case definition.'
       end
+
     end
 
     # Stub `stream_from` to track streams for the channel.
     # Add public aliases for `subscription_confirmation_sent?` and
     # `subscription_rejected?`.
     module ChannelStub
+
       def confirmed?
         subscription_confirmation_sent?
       end
@@ -40,11 +45,14 @@ module ActionCable
       end
 
       # Make periodic timers no-op
-      def start_periodic_timers; end
+      def start_periodic_timers
+      end
       alias stop_periodic_timers start_periodic_timers
+
     end
 
     class ConnectionStub
+
       attr_reader :transmissions, :identifiers, :subscriptions, :logger
 
       def initialize(identifiers = {})
@@ -62,6 +70,7 @@ module ActionCable
       def transmit(cable_message)
         transmissions << cable_message.with_indifferent_access
       end
+
     end
 
     # Superclass for Action Cable channel functional tests.
@@ -164,13 +173,15 @@ module ActionCable
     #    end
     #  end
     class TestCase < ActiveSupport::TestCase
+
       module Behavior
+
         extend ActiveSupport::Concern
 
         include ActiveSupport::Testing::ConstantLookup
         include ActionCable::TestHelper
 
-        CHANNEL_IDENTIFIER = "test_stub"
+        CHANNEL_IDENTIFIER = 'test_stub'
 
         included do
           class_attribute :_channel_class
@@ -181,6 +192,7 @@ module ActionCable
         end
 
         module ClassMethods
+
           def tests(channel)
             case channel
             when String, Symbol
@@ -188,12 +200,12 @@ module ActionCable
             when Module
               self._channel_class = channel
             else
-              raise NonInferrableChannelError.new(channel)
+              raise NonInferrableChannelError, channel
             end
           end
 
           def channel_class
-            if channel = self._channel_class
+            if channel = _channel_class
               channel
             else
               tests determine_default_channel(name)
@@ -204,9 +216,11 @@ module ActionCable
             channel = determine_constant_from_test_name(name) do |constant|
               Class === constant && constant < ActionCable::Channel::Base
             end
-            raise NonInferrableChannelError.new(name) if channel.nil?
+            raise NonInferrableChannelError, name if channel.nil?
+
             channel
           end
+
         end
 
         # Setup test connection with the specified identifiers:
@@ -240,13 +254,13 @@ module ActionCable
         # NOTE: Must be subscribed.
         def perform(action, data = {})
           check_subscribed!
-          subscription.perform_action(data.stringify_keys.merge("action" => action.to_s))
+          subscription.perform_action(data.stringify_keys.merge('action' => action.to_s))
         end
 
         # Returns messages transmitted into channel
         def transmissions
           # Return only directly sent message (via #transmit)
-          connection.transmissions.map { |data| data["message"] }.compact
+          connection.transmissions.map { |data| data['message'] }.compact
         end
 
         # Enhance TestHelper assertions to handle non-String
@@ -293,8 +307,9 @@ module ActionCable
         end
 
         private
+
           def check_subscribed!
-            raise "Must be subscribed!" if subscription.nil? || subscription.rejected?
+            raise 'Must be subscribed!' if subscription.nil? || subscription.rejected?
           end
 
           def broadcasting_for(stream_or_object)
@@ -302,9 +317,13 @@ module ActionCable
 
             self.class.channel_class.broadcasting_for(stream_or_object)
           end
+
       end
 
       include Behavior
+
     end
+
   end
+
 end

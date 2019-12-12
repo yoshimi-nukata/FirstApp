@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 module ActionController
+
   module Rendering
+
     extend ActiveSupport::Concern
 
-    RENDER_FORMATS_IN_PRIORITY = [:body, :plain, :html]
+    RENDER_FORMATS_IN_PRIORITY = [:body, :plain, :html].freeze
 
     module ClassMethods
+
       # Documentation at ActionController::Renderer#render
       delegate :render, to: :renderer
 
@@ -22,6 +25,7 @@ module ActionController
         klass.setup_renderer!
         super
       end
+
     end
 
     # Before processing, set the request formats in current controller formats.
@@ -33,6 +37,7 @@ module ActionController
     # Check for double render errors and set the content_type after rendering.
     def render(*args) #:nodoc:
       raise ::AbstractController::DoubleRenderError if response_body
+
       super
     end
 
@@ -40,7 +45,7 @@ module ActionController
     def render_to_string(*)
       result = super
       if result.respond_to?(:each)
-        string = +""
+        string = +''
         result.each { |r| string << r }
         string
       else
@@ -49,15 +54,13 @@ module ActionController
     end
 
     def render_to_body(options = {})
-      super || _render_in_priorities(options) || " "
+      super || _render_in_priorities(options) || ' '
     end
 
     private
 
       def _process_variant(options)
-        if defined?(request) && !request.nil? && request.variant.present?
-          options[:variant] = request.variant
-        end
+        options[:variant] = request.variant if defined?(request) && !request.nil? && request.variant.present?
       end
 
       def _render_in_priorities(options)
@@ -73,9 +76,7 @@ module ActionController
       end
 
       def _set_rendered_content_type(format)
-        if format && !response.media_type
-          self.content_type = format.to_s
-        end
+        self.content_type = format.to_s if format && !response.media_type
       end
 
       # Normalize arguments by catching blocks and setting them on :update.
@@ -89,22 +90,16 @@ module ActionController
       def _normalize_options(options)
         _normalize_text(options)
 
-        if options[:html]
-          options[:html] = ERB::Util.html_escape(options[:html])
-        end
+        options[:html] = ERB::Util.html_escape(options[:html]) if options[:html]
 
-        if options[:status]
-          options[:status] = Rack::Utils.status_code(options[:status])
-        end
+        options[:status] = Rack::Utils.status_code(options[:status]) if options[:status]
 
         super
       end
 
       def _normalize_text(options)
         RENDER_FORMATS_IN_PRIORITY.each do |format|
-          if options.key?(format) && options[format].respond_to?(:to_text)
-            options[format] = options[format].to_text
-          end
+          options[format] = options[format].to_text if options.key?(format) && options[format].respond_to?(:to_text)
         end
       end
 
@@ -114,9 +109,11 @@ module ActionController
 
         self.status = status if status
         self.content_type = content_type if content_type
-        headers["Location"] = url_for(location) if location
+        headers['Location'] = url_for(location) if location
 
         super
       end
+
   end
+
 end

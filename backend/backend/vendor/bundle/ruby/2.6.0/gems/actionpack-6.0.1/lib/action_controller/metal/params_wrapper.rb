@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/hash/slice"
-require "active_support/core_ext/hash/except"
-require "active_support/core_ext/module/anonymous"
-require "action_dispatch/http/mime_type"
+require 'active_support/core_ext/hash/slice'
+require 'active_support/core_ext/hash/except'
+require 'active_support/core_ext/module/anonymous'
+require 'action_dispatch/http/mime_type'
 
 module ActionController
+
   # Wraps the parameters hash into a nested hash. This will allow clients to
   # submit requests without having to specify any root elements.
   #
@@ -69,13 +70,15 @@ module ActionController
   # determine the wrapper key respectively. If both models don't exist,
   # it will then fallback to use +user+ as the key.
   module ParamsWrapper
+
     extend ActiveSupport::Concern
 
-    EXCLUDE_PARAMETERS = %w(authenticity_token _method utf8)
+    EXCLUDE_PARAMETERS = %w[authenticity_token _method utf8].freeze
 
-    require "mutex_m"
+    require 'mutex_m'
 
     class Options < Struct.new(:name, :format, :include, :exclude, :klass, :model) # :nodoc:
+
       include Mutex_m
 
       def self.from_hash(hash)
@@ -115,7 +118,7 @@ module ActionController
 
               if m.respond_to?(:nested_attributes_options) && m.nested_attributes_options.keys.any?
                 self.include += m.nested_attributes_options.keys.map do |key|
-                  (+key.to_s).concat("_attributes")
+                  (+key.to_s).concat('_attributes')
                 end
               end
 
@@ -142,6 +145,7 @@ module ActionController
       end
 
       private
+
         # Determine the wrapper model from the controller's name. By convention,
         # this could be done by trying to find the defined model that has the
         # same singular name as the controller. For example, +UsersController+
@@ -151,21 +155,24 @@ module ActionController
         # try to find Foo::Bar::User, Foo::User and finally User.
         def _default_wrap_model
           return nil if klass.anonymous?
-          model_name = klass.name.sub(/Controller$/, "").classify
+
+          model_name = klass.name.sub(/Controller$/, '').classify
 
           begin
             if model_klass = model_name.safe_constantize
               model_klass
             else
-              namespaces = model_name.split("::")
+              namespaces = model_name.split('::')
               namespaces.delete_at(-2)
               break if namespaces.last == model_name
-              model_name = namespaces.join("::")
+
+              model_name = namespaces.join('::')
             end
           end until model_klass
 
           model_klass
         end
+
     end
 
     included do
@@ -173,6 +180,7 @@ module ActionController
     end
 
     module ClassMethods
+
       def _set_wrapper_options(options)
         self._wrapper_options = Options.from_hash(options)
       end
@@ -236,6 +244,7 @@ module ActionController
         end
         super
       end
+
     end
 
     # Performs parameters wrapping upon the request. Called automatically
@@ -293,5 +302,7 @@ module ActionController
       rescue ActionDispatch::Http::Parameters::ParseError
         # swallow parse error exception
       end
+
   end
+
 end

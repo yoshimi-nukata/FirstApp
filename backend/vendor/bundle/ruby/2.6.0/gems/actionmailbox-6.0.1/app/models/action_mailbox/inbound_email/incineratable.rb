@@ -4,6 +4,7 @@
 # changed to +processed+. The later incineration will be invoked at the time specified by the
 # +ActionMailbox.incinerate_after+ time using the +IncinerationJob+.
 module ActionMailbox::InboundEmail::Incineratable
+
   extend ActiveSupport::Concern
 
   included do
@@ -17,4 +18,5 @@ module ActionMailbox::InboundEmail::Incineratable
   def incinerate
     Incineration.new(self).run
   end
+
 end
