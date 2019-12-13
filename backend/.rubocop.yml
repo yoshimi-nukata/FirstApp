@@ -1,5 +1,7 @@
 inherit_from: .rubocop_todo.yml
 
+require:
+  - rubocop-rails
 AllCops:
   TargetRubyVersion: 2.6
   Exclude:
@@ -11,6 +13,8 @@ AllCops:
   - 'vendor/**/*'
   - 'spec/**/*.json'
   - 'node_modules/**/*'
+  - 'backend/vendor/**/*'
+  
 
 Rails:
   Enabled: true
@@ -110,14 +114,14 @@ Layout/EmptyLineBetweenDefs:
 
 # https://rubocop.readthedocs.io/en/latest/cops_layout/#layoutindentationconsistency
 Layout/IndentationConsistency:
-  EnforcedStyle: rails
+  EnforcedStyle: indented_internal_methods 
 
 # https://rubocop.readthedocs.io/en/latest/cops_layout/#layoutindentarray
-Layout/IndentArray:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
 # https://rubocop.readthedocs.io/en/latest/cops_layout/#layoutalignparameters
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   Enabled: false
 
 # https://rubocop.readthedocs.io/en/stable/cops_layout/#layoutmultilinemethodcallindentation
@@ -153,7 +157,7 @@ Lint/NextWithoutAccumulator:
   Enabled: false
 
 # 空のrescueブロックを許可
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false
 
 # パイプイコール(||=)で宣言したインスタンス変数とmethod名が一致してなくてもよい
