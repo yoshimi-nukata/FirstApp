@@ -64,12 +64,12 @@ jobs:
             bundle exec rake spec
 
       # rubocop
-      - run:
-          name: rubocop
-          command: |
-            cd backend
-            bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html
-            bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple
+      #- run:
+      #    name: rubocop
+      #    command: |
+      #      cd backend
+      #      bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html
+      #      bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple
 
       # brakeman
       - run:
