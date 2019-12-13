@@ -1,0 +1,166 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-rails
+AllCops:
+  TargetRubyVersion: 2.6
+  Exclude:
+  - 'bin/*'
+  - 'db/**/*'
+  - 'public/**/*'
+  - 'log/**/*'
+  - 'tmp/**/*'
+  - 'vendor/**/*'
+  - 'spec/**/*.json'
+  - 'node_modules/**/*'
+  - 'backend/vendor/**/*'
+  
+
+Rails:
+  Enabled: true
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging
+
+# 日本語コメント許可
+Style/AsciiComments:
+  Enabled: false
+
+Style/CommentAnnotation:
+  Keywords:
+  - TODO      # 何かする/したい要望
+  - FIXME     # 間違った実装やバグってるコード
+  - OPTIMIZE  # パフォーマンスに影響を与える最適化すべき箇所
+  - HACK      # リファクタすべきコードの臭いがする箇所
+  - XXX       # (わかっているが)危険、またその兆候明らかに良くないが動作はする。正当な方法に直すべき。制約で仕方ない場合にも
+  - DANGER    # 個人情報に関するロジック等、変更を行う場合に注意が必要な箇所
+
+# ファイル先頭に「# frozen_string_literal: true」 がなくても許可
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# https://rubocop.readthedocs.io/en/latest/cops_style/#styleconditionalassignment
+Style/ConditionalAssignment:
+  EnforcedStyle: assign_inside_condition
+  IncludeTernaryExpressions: false
+
+# ドキュメント用のコメントなくても許可
+Style/Documentation:
+  Enabled: false
+
+# 文字列で構成される配列定義は%wと[]どちらでもよい
+Style/WordArray:
+  Enabled: false
+
+# シンボルで構成される配列定義は%iと[]どちらでもよい
+Style/SymbolArray:
+  Enabled: false
+
+# https://rubocop.readthedocs.io/en/latest/cops_style/#styleemptymethod
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+# https://rubocop.readthedocs.io/en/latest/cops_style/#stylenext
+Style/NumericPredicate:
+  Enabled: false
+
+# lambdaを使用する場合は lambda do |x| ではなく ->(x) を使う
+Style/Lambda:
+  EnforcedStyle: literal
+
+# https://rubocop.readthedocs.io/en/latest/cops_style/#styleguardclause
+Style/GuardClause:
+  Enabled: false
+
+# クラス変数の使用を許可
+Style/ClassVars:
+  Enabled: false
+
+# classを1行(class Foo::Barのような形)で書いてもネストで書いてもよい
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# 「&&」でも「and」でもよい(微妙に挙動が違う)
+Style/AndOr:
+  Enabled: false
+
+# hashのkey存在確認は Hash#has_key?, Hash#key? どちらでもよい
+Style/PreferredHashMethods:
+  Enabled: false
+
+# 桁の大きい数値のリテラルを示す'_'はあってもなくてもよい (1_000_000 or 1000000)
+Style/NumericLiterals:
+  Enabled: false
+
+# https://rubocop.readthedocs.io/en/stable/cops_style/#styleifinsideelse
+Style/IfInsideElse:
+  Enabled: false
+
+# class周りの空行あり
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: empty_lines
+
+# module周りの空行あり
+Layout/EmptyLinesAroundModuleBody:
+  EnforcedStyle: empty_lines
+
+# メソッド間の空行
+Layout/EmptyLineBetweenDefs:
+  AllowAdjacentOneLineDefs: true
+
+# https://rubocop.readthedocs.io/en/latest/cops_layout/#layoutindentationconsistency
+Layout/IndentationConsistency:
+  EnforcedStyle: indented_internal_methods 
+
+# https://rubocop.readthedocs.io/en/latest/cops_layout/#layoutindentarray
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+# https://rubocop.readthedocs.io/en/latest/cops_layout/#layoutalignparameters
+Layout/ParameterAlignment:
+  Enabled: false
+
+# https://rubocop.readthedocs.io/en/stable/cops_layout/#layoutmultilinemethodcallindentation
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+# https://rubocop.readthedocs.io/en/stable/cops_layout/#layoutmultilinemethodcallbracelayout
+Layout/MultilineMethodCallBraceLayout:
+  Enabled: false
+
+# HasMany,HasOneに:dependentオプションがなくてもよい
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+# :inverse_ofオプションがなくてもよい
+Rails/InverseOf:
+  Enabled: false
+
+# 変数名に数字を入れる場合snake_caseでもnormalcaseでもよい
+Naming/VariableNumber:
+  Enabled: false
+
+# has_and_belongs_to_many の使用を許可
+Rails/HasAndBelongsToMany:
+  Enabled: false
+
+# OK:Rails.root.join('app/models/goober') NG:Rails.root.join('app', 'models', 'goober')
+Rails/FilePath:
+  EnforcedStyle: slashes
+
+# reduceブロックでnextを呼び出すときにaccumulatorの省略を許可
+Lint/NextWithoutAccumulator:
+  Enabled: false
+
+# 空のrescueブロックを許可
+Lint/SuppressedException:
+  Enabled: false
+
+# パイプイコール(||=)で宣言したインスタンス変数とmethod名が一致してなくてもよい
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+

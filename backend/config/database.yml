@@ -11,22 +11,26 @@
 #
 default: &default
   adapter: mysql2
-  encoding: utf8
+  encoding: utf8mb4
+  collation: utf8mb4_general_ci
+  encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password:
-  host: db
 
-development:
+development: &development
   <<: *default
   database: firstapp_development
+  host:     <%= ENV['DATABASE_HOST'] || '127.0.0.1' %>
+  port:     <%= ENV['DATABASE_PORT'] || '3306' %>
+  username: <%= ENV['DATABASE_USER'] || 'root' %>
+  password: <%= ENV['DATABASE_PASS'] || '' %>
+
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
-test:
-  <<: *default
-  database: app_test
+test: &test
+  <<: *development
+  database: firstapp_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -49,6 +53,8 @@ test:
 #
 production:
   <<: *default
-  database: app_production
-  username: app
-  password: <%= ENV['APP_DATABASE_PASSWORD'] %>
+  database: firstapp_production
+  host:     <%= ENV['DATABASE_HOST'] %>
+  port:     <%= ENV['DATABASE_PORT'] || '3306' %>
+  username: <%= ENV['DATABASE_USER'] %>
+  password: <%= ENV['DATABASE_PASS'] %>

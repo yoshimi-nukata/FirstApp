@@ -1,0 +1,87 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/FirstApp
+    docker:
+      - image: circleci/ruby:2.6.3-node-browsers
+        environment:
+          RAILS_ENV: test
+          DATABASE_HOST: 127.0.0.1
+          REDIS_HOST: 127.0.0.1
+      - image: mysql:5.7
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        command:
+          mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --init-connect='SET NAMES utf8mb4' --sql-mode=''
+      - image: circleci/redis:5.0.4
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install Bundler
+          command: gem install bundler -v 1.17.3
+
+      - run:
+          name: make artifacts directory
+          command: mkdir /tmp/artifacts
+
+      - restore_cache:
+          keys:
+            - v1-rails-firstapp-{{ checksum "backend/Gemfile.lock" }}
+            - v1-rails-firstapp-
+
+      - run:
+          name: install dependencies
+          command: bundle _1.17.3_ install --gemfile=backend/Gemfile --path=vendor/bundle --jobs 4 --retry 3
+
+      - save_cache:
+          key: v1-rails-firstapp-{{ checksum "backend/Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - restore_cache:
+          keys:
+            - v1-rails-firstapp-{{ checksum "frontend/package.json" }}
+
+      - save_cache:
+          key: v1-rails-firstapp-{{ checksum "frontend/package.json" }}
+          paths:
+            - frontend/node_modules
+
+      # Database setup
+      - run:
+          name: Database Setup
+          command: |
+            cd backend
+            bundle _1.17.3_ exec rake db:create
+
+      # rspec
+      - run:
+          name: RSpec
+          command: |
+            cd backend
+            bundle exec rake spec
+
+      # rubocop
+      #- run:
+      #    name: rubocop
+      #    command: |
+      #      cd backend
+      #      bundle _1.17.3_ exec rubocop -f html > /tmp/artifacts/rubocop.html
+      #      bundle _1.17.3_ exec rubocop -D -c .rubocop.yml -f simple
+
+      # brakeman
+      - run:
+          name: brakeman
+          command: |
+            cd backend
+            bundle exec brakeman
+
+      # ESlint
+      - run:
+          name: ESLint
+          command: npx eslint -o /tmp/artifacts/eslint.html -f node_modules/eslint-html-reporter/reporter.js --fix
+
+      - store_artifacts:
+          path: /tmp/artifacts
