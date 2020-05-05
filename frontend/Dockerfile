@@ -9,8 +9,10 @@ ENV PORT 8080
 WORKDIR ${APP_HOME}
 ADD . ${APP_HOME}
 
-RUN apk update && apk upgrade && npm install --global yarn && yarn global add @vue/cli && yarn global add @vue/cli-init
+#RUN apk update && apk upgrade && npm install --global yarn && yarn global add @vue/cli && yarn global add @vue/cli-init
+Run yarn && yarn build && yarn install
+Run yarn upgrade
 
 EXPOSE ${PORT}
 
-CMD ["yarn", "dev"]
+CMD ["yarn", "run", "dev"]
