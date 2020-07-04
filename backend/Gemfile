@@ -19,6 +19,10 @@ gem 'dotenv-rails'
 gem 'seed-fu', '2.3.9'
 gem 'sidekiq', '~> 5.2.7'
 
+#認証
+gem 'devise'
+gem 'devise_token_auth'
+
 group :development do
   gem 'brakeman'
   gem 'rubocop'

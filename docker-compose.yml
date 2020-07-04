@@ -30,6 +30,8 @@ services:
       - ./backend:/app
       - backend-bundle:/usr/local/bundle
       - web-cache:/app/tmp
+    ports:
+      - 4000:3000
     environment:
       RAILS_ENV: development
       REDIS_HOST: redis
